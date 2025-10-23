@@ -167,7 +167,6 @@ public class ExplorerDraw
     }
 
 
-
     public static void InitItemList(bool showSideWindow, int rows,
                             int columns, int itemStart, int leftPaneWidth, List<ExplorerItem> subPage)
     {
