@@ -1,4 +1,4 @@
 # Msh Explorer
 
 A simple commandline file explorer made in C#
-![Screenshot](/MshExplorerScreenshot1.png)
+![Screenshot](github.com/Simply-Cod/MshExplorer/MshExplorerScreenshot1.png)
