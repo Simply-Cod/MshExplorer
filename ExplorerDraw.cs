@@ -150,7 +150,7 @@ public class ExplorerDraw
         {
                 if (System.IO.Path.GetExtension(item.Path) == ".cs")
                     displayName = $"\x1b[38;5;11m  {item.DisplayName}\x1b[0m";
-                else if (System.IO.Path.GetExtension(item.Path) == ".cs")
+                else if (System.IO.Path.GetExtension(item.Path) == ".c")
                     displayName = $"\x1b[38;5;208m  {item.DisplayName}\x1b[0m";
                 else if (ExplorerItem.IsBinaryFile(item.Path, 100))
                     displayName = $"\x1b[1;36m  {item.DisplayName}\x1b[0m";
