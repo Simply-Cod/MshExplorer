@@ -1,21 +1,12 @@
 using System.Text;
 
 namespace MshExplorer;
-// Old green "\x1b[38;2;90;150;144m"
-// Old Orange "\x1b[38;2;217;125;85m"
+
 public class Util
 {
     const string reset = "\x1b[0m";
     const string bold = "\x1b[1m";
-    const string orange = "\x1b[38;2;224;122;95m";
-    const string green = "\x1b[38;2;129;178;154m";
-    const string blue = "\x1b[38;2;61;64;91m";
-    const string white = "\x1b[38;2;244;241;222m";
-    const string khaki = "\x1b[38;2;242;204;143m";
-    const string bgDark = "\x1b[48;2;31;43;61m";
-
-
-    
+   
 
         public static bool IsReadableDir(string path)
     {
@@ -31,9 +22,6 @@ public class Util
         catch (IOException) { return false; }
     }
     
-// ╭─────╮
-// │     │
-// ╰─────╯
     public static string GetString()
     {
         (int, int) cursorPos = Console.GetCursorPosition();
