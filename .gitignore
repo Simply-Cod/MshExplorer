@@ -1,0 +1,79 @@
+# Visual Studio and .NET Core specific files
+.vs/
+*.suo
+*.user
+*.userprefs
+*.log
+*.pdb
+*.obj
+*.exe
+*.dll
+*.ilk
+*.cache
+*.ncb
+*.aps
+*.bsc
+*.sbr
+*.tlb
+*.tlh
+*.tmp
+*.bak
+*.old
+*.resharper
+*.dotSettings
+*.csproj.user
+*.vcxproj.user
+*.sln.docstates
+*.vsproj.user
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.kproj.user
+*.nuspec
+*.nupkg
+*.appx
+*.appxbundle
+*.msi
+*.msp
+*.msm
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# NuGet packages
+packages/
+*.nupkg
+project.lock.json
+
+# Rider specific files
+.idea/
+*.sln.iml
+
+# Visual Studio Code specific files
+.vscode/
+
+# Ignore test results
+TestResults/
+
+# Ignore database files
+*.mdf
+*.ldf
+*.sdf
+
+# Ignore log files
+*.log
+
+# Ignore user secrets
+**/appsettings*.json
+**/launchSettings*.json
+
+# Ignore generated files
+GeneratedFiles/
+
+# Ignore temporary files
+temp/
