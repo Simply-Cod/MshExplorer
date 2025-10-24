@@ -192,15 +192,29 @@ class Program
                         clipboardItem = new(src.DisplayName, src.Path, src.Type);
                         ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
                     }
+                    else if (subPage[index].Type == ExplorerType.DIRECTORY)
+                    {
+                        var src = subPage[index];
+                        clipboardItem = new(src.DisplayName, src.Path, src.Type);
+                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                    }
                     break;
                 case 'p':
                     if (clipboardItem.Type == ExplorerType.FILE)
                     {
-                        Util.PasteItem(clipboardItem, currentPath);
+                        Util.PasteFile(clipboardItem, currentPath);
                         clipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
                         ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
                         dirChange = true;
                     }
+                    else if (clipboardItem.Type == ExplorerType.DIRECTORY)
+                    {
+                        Util.PasteDirectory(clipboardItem.Path, currentPath);
+                        clipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
+                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                        dirChange = true;
+                    }
+                    
                     break;
             }
 

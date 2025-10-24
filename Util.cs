@@ -6,9 +6,9 @@ public class Util
 {
     const string reset = "\x1b[0m";
     const string bold = "\x1b[1m";
-   
 
-        public static bool IsReadableDir(string path)
+
+    public static bool IsReadableDir(string path)
     {
         try
         {
@@ -21,7 +21,7 @@ public class Util
         catch (DirectoryNotFoundException) { return false; }
         catch (IOException) { return false; }
     }
-    
+
     public static string GetString()
     {
         (int, int) cursorPos = Console.GetCursorPosition();
@@ -36,10 +36,10 @@ public class Util
 
             if (key.Key == ConsoleKey.Backspace && inputBuilder.Length > 0)
             {
-               inputBuilder.Remove(inputBuilder.Length -1, 1);
-               Console.Write("\b \b");
+                inputBuilder.Remove(inputBuilder.Length - 1, 1);
+                Console.Write("\b \b");
             }
-           else if (inputBuilder.Length < maxLength && !char.IsControl(key.KeyChar))
+            else if (inputBuilder.Length < maxLength && !char.IsControl(key.KeyChar))
             {
                 inputBuilder.Append(key.KeyChar);
                 Console.Write(key.KeyChar);
@@ -48,10 +48,10 @@ public class Util
             {
                 break;
             }
-           else if (key.Key == ConsoleKey.Enter)
-           {
+            else if (key.Key == ConsoleKey.Enter)
+            {
                 break;
-           }
+            }
         }
         if (key.Key == ConsoleKey.Enter)
         {
@@ -59,12 +59,12 @@ public class Util
         }
 
         ExplorerDraw.RemoveCommandLine(cursorPos);
-                return item;
+        return item;
     }
 
     public static void AddItem(string currentPath, string name)
     {
-       try
+        try
         {
             name = name.Trim();
 
@@ -84,7 +84,7 @@ public class Util
                     return;
                 }
                 Directory.CreateDirectory(dirPath);
-                
+
             }
             else                            // Create File
             {
@@ -96,11 +96,11 @@ public class Util
                 FileStream fs = File.Create(filePath);
                 fs.Close();
             }
-       }
-        catch (UnauthorizedAccessException) 
+        }
+        catch (UnauthorizedAccessException)
         {
-           Console.Write("Unauthorized"); 
-           return;
+            Console.Write("Unauthorized");
+            return;
         }
         catch (IOException)
         {
@@ -133,10 +133,10 @@ public class Util
         if (dirWithContent)
         {
             string format = ExplorerDraw.WriteDisplayText(item, false);
-            Console.Write($"   Remove {format} And it's Content?");Console.SetCursorPosition(0,1);
+            Console.Write($"   Remove {format} And it's Content?"); Console.SetCursorPosition(0, 1);
             Console.Write("    (y)Yes (n)No");
             char key = 'a';
-            
+
             while (true)
             {
                 key = Console.ReadKey(true).KeyChar;
@@ -146,7 +146,7 @@ public class Util
 
             if (key == 'n')
             {
-                Console.Write("\x1b[2K");Console.SetCursorPosition(0,0);
+                Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 0);
                 Console.Write("\x1b[2K");
                 Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
 
@@ -171,9 +171,9 @@ public class Util
                 }
             }
         }
-        catch (UnauthorizedAccessException) 
+        catch (UnauthorizedAccessException)
         {
-           return;
+            return;
         }
         catch (IOException)
         {
@@ -183,14 +183,14 @@ public class Util
         {
             return;
         }
-        
 
-        Console.Write("\x1b[2K");Console.SetCursorPosition(0,0);
+
+        Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 0);
         Console.Write("\x1b[2K");
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
-    public static void PasteItem(ExplorerItem clipboardItem, string currentPath)
+    public static void PasteFile(ExplorerItem clipboardItem, string currentPath)
     {
         string name = Path.GetFileName(clipboardItem.Path);
         string destination = Path.Combine(currentPath, name);
@@ -203,6 +203,48 @@ public class Util
                 {
                     File.Copy(clipboardItem.Path, destination);
                 }
+            }
+        }
+        catch (UnauthorizedAccessException) { return; }
+        catch (IOException) { return; }
+        catch (ArgumentException) { return; }
+    }
+
+    public static void PasteDirectory(string clipboardItemPath, string currentPath)
+    {
+        DirectoryInfo dir = new(clipboardItemPath);
+
+        if (!dir.Exists)
+        {
+            return;
+        }
+        try
+        {
+
+            DirectoryInfo[] subDirs = dir.GetDirectories();
+
+            if (!Directory.Exists(currentPath))
+            {
+                Directory.CreateDirectory(currentPath);
+            }
+            else
+            {
+                currentPath = Path.Combine(currentPath, dir.Name);
+                Directory.CreateDirectory(currentPath);
+            }
+
+            FileInfo[] subFiles = dir.GetFiles();
+
+            foreach (var f in subFiles)
+            {
+                string tempPath = Path.Combine(currentPath, f.Name);
+                f.CopyTo(tempPath, true); // The bool tells the function to overwrite if file already exists
+            }
+
+            foreach (var d in subDirs)
+            {
+                string tempPath = Path.Combine(currentPath, d.Name);
+                PasteDirectory(d.FullName, tempPath);
             }
         }
         catch (UnauthorizedAccessException) { return; }
