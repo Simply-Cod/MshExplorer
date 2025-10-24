@@ -1,17 +1,10 @@
 ﻿
 namespace MshExplorer;
-// NerdFont Icons
-//  - Directory
-//  - File
+
 class Program
 {
     static void Main(string[] args)
     {
-        // Orange in Hex = #D97D55 rgb = (217, 125, 85)
-        // Green in Hex = #5A9690 rgb = (90, 150, 144)
-        // Ansi escape codes
-        //const string bold = "\x1b[1m";
-        //const string orange = "\x1b[38;2;217;125;85m";
         const string hideCursor = "\x1b[?25l";
         const string showCursor = "\x1b[?25h";
 
@@ -41,7 +34,7 @@ class Program
         int currentPage = 0;
         bool pageChange = false;
 
-        Console.Write(hideCursor); // Hide Cursor
+        Console.Write(hideCursor); 
 
         ExplorerItem clipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
 

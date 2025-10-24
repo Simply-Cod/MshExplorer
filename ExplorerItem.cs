@@ -9,9 +9,6 @@ public enum ExplorerType
 
 public class ExplorerItem
 {
-    const string bold = "\x1b[1m";
-    const string orange = "\x1b[38;2;217;125;85m";
-    const string green = "\x1b[38;2;90;150;144m";
 
     public string DisplayName { get; set; }
     public string Path { get; set; }
@@ -63,7 +60,7 @@ public class ExplorerItem
     {
         if (!File.Exists(filePath))
         {
-            return false; // Or throw an exception
+            return false;
         }
 
         try
