@@ -17,8 +17,6 @@ public class ExplorerDraw
     const string green =        "\e[38;2;129;178;154m";
     const string blue =         "\e[38;2;41;81;242m";
     const string darkBlue =     "\e[38;2;61;64;91m";
-    const string white =        "\e[38;2;244;241;222m";
-    const string khaki =        "\e[38;2;242;204;143m";
     const string mellow =       "\e[38;2;154;151;132m";
     const string red =          "\e[38;2;186;61;52m";
 
@@ -87,22 +85,28 @@ public class ExplorerDraw
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
-    public static void StatusBar(int itemStart, int rows, int pages, int currentPage, ExplorerItem clipboardItem)
+    public static void StatusBar(int itemStart, int rows, int pages,
+            int currentPage, ExplorerItem clipboardItem,bool notifyErr, ref string errMessage)
     {
         (int, int) cursorPos = Console.GetCursorPosition();
         int infoY = Math.Min(Console.WindowHeight - 1, itemStart + rows);
 
         string clipboardText = string.Empty;
         if (clipboardItem.Type != ExplorerType.NONE)
-            clipboardText = WriteDisplayText(clipboardItem, false);
+            clipboardText = WriteDisplayText(clipboardItem, false, ref errMessage);
 
         Console.SetCursorPosition(0, infoY);
 
         string statusText =
             $" Pages [{(pages == 0 ? 0 : currentPage + 1)}/{pages}] | Clipboard: {clipboardText}";
 
+
         Console.Write(eraseLine);
-        Console.Write($"{bgDark}{bold}{green}{statusText}{bgDark}\x1b[K{reset}");
+        if (!notifyErr)
+            Console.Write($"{bgDark}{bold}{green}{statusText}{bgDark}\x1b[K{reset}");
+        else
+            Console.Write($"{bgDark}{bold}{green}{statusText} {red}{errMessage}{reset}{bgDark}\x1b[K{reset}");
+
 
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
@@ -126,7 +130,7 @@ public class ExplorerDraw
 
     public static void HelpWindow()
     {
-        ExplorerDraw.Border(70, 3, 42, 11);
+        ExplorerDraw.Border(70, 3, 44, 12);
         string helpHeader = $"{bold}{green}Quick Help{reset}";
         string[] helpWindowText = [
             $"{mellow}Navigate Up/Down            󰜷/󰁆 or k/j",
@@ -138,13 +142,14 @@ public class ExplorerDraw
             "Delete File/Directory       d",
             "Copy/Yank File              y",
             "Paste File                  p",
+            "Remove Status Message       Backspace",
             $"Quit                        q{reset}"
         ];
         ExplorerDraw.BorderText(70, 3, helpHeader, helpWindowText);
     }
 
 
-    public static string WriteDisplayText(ExplorerItem item, bool isCurrentItem)
+    public static string WriteDisplayText(ExplorerItem item, bool isCurrentItem, ref string errMessage)
     {
         string displayName = string.Empty;
         
@@ -160,12 +165,18 @@ public class ExplorerDraw
                     displayName = $"\x1b[38;5;11m  {item.DisplayName}{reset}";
                 else if (System.IO.Path.GetExtension(item.Path) == ".c")
                     displayName = $"\x1b[38;5;208m  {item.DisplayName}{reset}";
-                else if (ExplorerItem.IsBinaryFile(item.Path, 100))
+                else if (ExplorerItem.IsBinaryFile(item.Path, 100, ref errMessage))
                     displayName = $"\x1b[1;36m  {item.DisplayName}{reset}";
                 else
                     displayName = $"\x1b[33m  {item.DisplayName}{reset}";
             }
-            catch (UnauthorizedAccessException) {return $"{red}     {item.DisplayName}{reset}";}
+            catch (UnauthorizedAccessException) 
+            {
+               if (isCurrentItem) 
+                    return $"{red}    {item.DisplayName}{reset}";
+               else
+                    return $"{red}     {item.DisplayName}{reset}";
+            }
 
         }
 
@@ -179,7 +190,7 @@ public class ExplorerDraw
 
 
     public static void InitItemList(bool showSideWindow, int rows,
-                            int columns, int itemStart, int leftPaneWidth, List<ExplorerItem> subPage)
+                            int columns, int itemStart, int leftPaneWidth, List<ExplorerItem> subPage, ref string errMessage)
     {
 
         for (int i = 0; i < rows; i++)
@@ -197,7 +208,7 @@ public class ExplorerDraw
             }
             if (i < subPage.Count)
             {
-                Console.Write(WriteDisplayText(subPage[i], false)); // False Means It is not selected
+                Console.Write(WriteDisplayText(subPage[i], false, ref errMessage)); // False Means It is not selected
             }
         }
 
@@ -209,7 +220,7 @@ public class ExplorerDraw
 
     }
     public static void CurrentItemAfterInit(bool showSideWindow, int index, int previousIndex, int itemStart,
-                       int leftPaneWidth, int columns, ExplorerItem item)
+                       int leftPaneWidth, int columns, ExplorerItem item, ref string errMessage)
     {
         index = 0;
         previousIndex = 0;
@@ -224,12 +235,12 @@ public class ExplorerDraw
         {
             Console.Write(deleteLine);
         }
-        Console.Write(WriteDisplayText(item, true)); // bool means selected item
+        Console.Write(WriteDisplayText(item, true, ref errMessage)); // bool means selected item
         
     }
 
     public static void CurrentItem(bool showSideWindow, int previousIndex, int itemStart,
-            int leftPaneWidth, int columns, int index, ExplorerItem previousItem, ExplorerItem currentItem)
+            int leftPaneWidth, int columns, int index, ExplorerItem previousItem, ExplorerItem currentItem, ref string errMessage)
     {
         Console.SetCursorPosition(0, previousIndex + itemStart);
         if (showSideWindow)
@@ -241,7 +252,7 @@ public class ExplorerDraw
         {
             Console.Write(deleteLine);
         }
-        Console.Write(WriteDisplayText(previousItem, false));
+        Console.Write(WriteDisplayText(previousItem, false, ref errMessage));
 
         Console.SetCursorPosition(0, index + itemStart);
         if (showSideWindow)
@@ -253,7 +264,7 @@ public class ExplorerDraw
         {
             Console.Write(deleteLine);
         }
-        Console.Write(WriteDisplayText(currentItem, true));
+        Console.Write(WriteDisplayText(currentItem, true, ref errMessage));
     }
 
  

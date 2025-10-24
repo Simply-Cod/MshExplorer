@@ -7,8 +7,7 @@ public class Util
     const string reset = "\x1b[0m";
     const string bold = "\x1b[1m";
 
-
-    public static bool IsReadableDir(string path)
+    public static bool IsReadableDir(string path, ref string errMessage)
     {
         try
         {
@@ -17,9 +16,9 @@ public class Util
             _ = e.MoveNext();
             return true;
         }
-        catch (UnauthorizedAccessException) { return false; }
-        catch (DirectoryNotFoundException) { return false; }
-        catch (IOException) { return false; }
+        catch (UnauthorizedAccessException ex) {errMessage = $"Error: {ex.Message}"; return false; }
+        catch (DirectoryNotFoundException ex) {errMessage = $"Error: {ex.Message}"; return false; }
+        catch (IOException ex) {errMessage = $"Error: {ex.Message}"; return false; }
     }
 
     public static string GetString()
@@ -62,7 +61,7 @@ public class Util
         return item;
     }
 
-    public static void AddItem(string currentPath, string name)
+    public static void AddItem(string currentPath, string name, ref string errMessage)
     {
         try
         {
@@ -97,22 +96,24 @@ public class Util
                 fs.Close();
             }
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
-            Console.Write("Unauthorized");
+            errMessage = $"Error: {ex.Message}";
             return;
         }
-        catch (IOException)
+        catch (IOException ex)
         {
+            errMessage = $"Error: {ex.Message}";
             return;
         }
-        catch (ArgumentException)
+        catch (ArgumentException ex)
         {
+            errMessage = $"Error: {ex.Message}";
             return;
         }
     }
 
-    public static void RemoveItem(ExplorerItem item)
+    public static void RemoveItem(ExplorerItem item, ref string errMessage)
     {
         bool dirWithContent = false;
         (int, int) cursorPos = Console.GetCursorPosition();
@@ -132,7 +133,7 @@ public class Util
 
         if (dirWithContent)
         {
-            string format = ExplorerDraw.WriteDisplayText(item, false);
+            string format = ExplorerDraw.WriteDisplayText(item, false, ref errMessage);
             Console.Write($"   Remove {format} And it's Content?"); Console.SetCursorPosition(0, 1);
             Console.Write("    (y)Yes (n)No");
             char key = 'a';
@@ -171,16 +172,19 @@ public class Util
                 }
             }
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
+            errMessage = $"Error: {ex.Message}";
             return;
         }
-        catch (IOException)
+        catch (IOException ex)
         {
+            errMessage = $"Error: {ex.Message}";
             return;
         }
-        catch (ArgumentException)
+        catch (ArgumentException ex)
         {
+            errMessage = $"Error: {ex.Message}";
             return;
         }
 
@@ -190,7 +194,7 @@ public class Util
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
-    public static void PasteFile(ExplorerItem clipboardItem, string currentPath)
+    public static void PasteFile(ExplorerItem clipboardItem, string currentPath, ref string errMessage)
     {
         string name = Path.GetFileName(clipboardItem.Path);
         string destination = Path.Combine(currentPath, name);
@@ -205,12 +209,24 @@ public class Util
                 }
             }
         }
-        catch (UnauthorizedAccessException) { return; }
-        catch (IOException) { return; }
-        catch (ArgumentException) { return; }
+        catch (UnauthorizedAccessException ex) 
+        { 
+            errMessage = $"Error: {ex.Message}";
+            return; 
+        }
+        catch (IOException ex) 
+        { 
+            errMessage = $"Error: {ex.Message}";
+            return; 
+        }
+        catch (ArgumentException ex) 
+        { 
+            errMessage = $"Error: {ex.Message}";
+            return; 
+        }
     }
 
-    public static void PasteDirectory(string clipboardItemPath, string currentPath)
+    public static void PasteDirectory(string clipboardItemPath, string currentPath, ref string errMessage)
     {
         DirectoryInfo dir = new(clipboardItemPath);
 
@@ -244,12 +260,31 @@ public class Util
             foreach (var d in subDirs)
             {
                 string tempPath = Path.Combine(currentPath, d.Name);
-                PasteDirectory(d.FullName, tempPath);
+                PasteDirectory(d.FullName, tempPath, ref errMessage);
             }
         }
-        catch (UnauthorizedAccessException) { return; }
-        catch (IOException) { return; }
-        catch (ArgumentException) { return; }
+        catch (UnauthorizedAccessException ex) 
+        { 
+            errMessage = $"Error: {ex.Message}";
+            return; 
+        }
+        catch (IOException ex) 
+        { 
+            errMessage = $"Error: {ex.Message}";
+            return; 
+        }
+        catch (ArgumentException ex) 
+        { 
+            errMessage = $"Error: {ex.Message}";
+            return; 
+        }
+    }
+
+    public static void LogErrorMessage(string errMessage)
+    {
+        string logPath = "debug/error.txt";
+        errMessage = $"-- Error {DateTime.Now.ToString("G")} --\n{errMessage}\n-- End --\n\n";
+        File.AppendAllText(logPath, errMessage);
     }
 
 }

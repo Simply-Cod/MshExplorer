@@ -1,3 +1,4 @@
+
 namespace MshExplorer;
 
 public enum ExplorerType
@@ -6,6 +7,7 @@ public enum ExplorerType
     FILE,
     NONE
 }
+
 
 public class ExplorerItem
 {
@@ -21,7 +23,7 @@ public class ExplorerItem
         Type = type;
     }
 
-    public static List<ExplorerItem> GetDirItems(string currentPath)
+    public static List<ExplorerItem> GetDirItems(string currentPath, ref string errMessage)
     {
         List<ExplorerItem> items = [];
         try
@@ -52,11 +54,12 @@ public class ExplorerItem
         catch
         {
             items.Clear();
+            errMessage = "Error: when fetching directories In function: GetDirItems()";
         }
 
         return items;
     }
-    public static bool IsBinaryFile(string filePath, int sampleSize = 4096)
+    public static bool IsBinaryFile(string filePath, int sampleSize, ref string errMessage)
     {
         if (!File.Exists(filePath))
         {
@@ -74,9 +77,9 @@ public class ExplorerItem
                 return buffer.Take(bytesRead).Any(b => b == 0);
             }
         }
-        catch (IOException)
+        catch (IOException ex)
         {
-            // Handle file access errors
+            errMessage = $"Error: {ex}";
             return false;
         }
     }

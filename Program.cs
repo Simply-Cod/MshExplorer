@@ -34,15 +34,18 @@ class Program
         int currentPage = 0;
         bool pageChange = false;
 
-        Console.Write(hideCursor); 
+        Console.Write(hideCursor);
 
         ExplorerItem clipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
 
         int prevHeight = Console.WindowHeight;
         int prevWidth = Console.WindowWidth;
 
+        string ExceptionMessage = string.Empty;
+        bool notifyError = false;
         while (isRunning)
         {
+
             if (Console.WindowWidth != prevWidth || Console.WindowHeight != prevHeight)
             {
                 prevHeight = Console.WindowHeight;
@@ -64,7 +67,7 @@ class Program
                 subPage.Clear();
                 currentPage = 0;
 
-                directoryItems = ExplorerItem.GetDirItems(currentPath);
+                directoryItems = ExplorerItem.GetDirItems(currentPath, ref ExceptionMessage);
 
                 pages = (directoryItems.Count + rows - 1) / rows;
 
@@ -78,7 +81,7 @@ class Program
 
                 Console.Clear();
                 ExplorerDraw.Header(currentPath);
-                ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem, notifyError, ref ExceptionMessage);
                 if (showSideWindow)
                 {
                     ExplorerDraw.HelpWindow();
@@ -86,7 +89,7 @@ class Program
             }
 
             if (dirChange || pageChange)
-                ExplorerDraw.InitItemList(showSideWindow, rows, columns, itemStart, leftPaneWidth, subPage);
+                ExplorerDraw.InitItemList(showSideWindow, rows, columns, itemStart, leftPaneWidth, subPage, ref ExceptionMessage);
 
             // Update
             // -------------------------------------------------------
@@ -95,7 +98,7 @@ class Program
                 if (dirChange || pageChange)
                 {
                     ExplorerDraw.CurrentItemAfterInit(showSideWindow, index, previousIndex, itemStart,
-                     leftPaneWidth, columns, subPage[previousIndex]);
+                     leftPaneWidth, columns, subPage[previousIndex], ref ExceptionMessage);
 
                     dirChange = false;
                     pageChange = false;
@@ -103,7 +106,7 @@ class Program
                 else
                 {
                     ExplorerDraw.CurrentItem(showSideWindow, previousIndex, itemStart, leftPaneWidth,
-                            columns, index, subPage[previousIndex], subPage[index]);
+                            columns, index, subPage[previousIndex], subPage[index], ref ExceptionMessage);
 
                     previousIndex = index;
                 }
@@ -142,7 +145,7 @@ class Program
                     break;
                 case 'h':
                     var parent = Directory.GetParent(currentPath);
-                    if (parent != null && Util.IsReadableDir(parent.FullName))
+                    if (parent != null && Util.IsReadableDir(parent.FullName, ref ExceptionMessage))
                     {
                         currentPath = parent.FullName;
                         dirChange = true;
@@ -152,7 +155,7 @@ class Program
                     if (subPage.Count >= 1 && subPage[index].Type == ExplorerType.DIRECTORY)
                     {
                         var next = subPage[index].Path;
-                        if (Directory.Exists(next) && Util.IsReadableDir(next))
+                        if (Directory.Exists(next) && Util.IsReadableDir(next, ref ExceptionMessage))
                         {
                             currentPath = next;
                             dirChange = true;
@@ -163,7 +166,7 @@ class Program
                     string newItem = Util.GetString();
                     if (!string.IsNullOrEmpty(newItem))
                     {
-                        Util.AddItem(currentPath, newItem);
+                        Util.AddItem(currentPath, newItem, ref ExceptionMessage);
                         dirChange = true;
                     }
                     break;
@@ -171,15 +174,15 @@ class Program
                     if (subPage.Count >= 1)
                     {
                         var itemToRemove = subPage[index].Path;
-                        if (Directory.Exists(itemToRemove) && Util.IsReadableDir(itemToRemove))
+                        if (Directory.Exists(itemToRemove) && Util.IsReadableDir(itemToRemove, ref ExceptionMessage))
                         {
-                            Util.RemoveItem(subPage[index]);
+                            Util.RemoveItem(subPage[index], ref ExceptionMessage);
 
                             dirChange = true;
                         }
                         else if (File.Exists(itemToRemove))
                         {
-                            Util.RemoveItem(subPage[index]);
+                            Util.RemoveItem(subPage[index], ref ExceptionMessage);
 
                             dirChange = true;
                         }
@@ -190,31 +193,35 @@ class Program
                     {
                         var src = subPage[index];
                         clipboardItem = new(src.DisplayName, src.Path, src.Type);
-                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage,
+                                clipboardItem, notifyError, ref ExceptionMessage);
                     }
                     else if (subPage[index].Type == ExplorerType.DIRECTORY)
                     {
                         var src = subPage[index];
                         clipboardItem = new(src.DisplayName, src.Path, src.Type);
-                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage,
+                                clipboardItem, notifyError, ref ExceptionMessage);
                     }
                     break;
                 case 'p':
                     if (clipboardItem.Type == ExplorerType.FILE)
                     {
-                        Util.PasteFile(clipboardItem, currentPath);
+                        Util.PasteFile(clipboardItem, currentPath, ref ExceptionMessage);
                         clipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
-                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage,
+                                clipboardItem, notifyError, ref ExceptionMessage);
                         dirChange = true;
                     }
                     else if (clipboardItem.Type == ExplorerType.DIRECTORY)
                     {
-                        Util.PasteDirectory(clipboardItem.Path, currentPath);
+                        Util.PasteDirectory(clipboardItem.Path, currentPath, ref ExceptionMessage);
                         clipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
-                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                        ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage,
+                                clipboardItem, notifyError, ref ExceptionMessage);
                         dirChange = true;
                     }
-                    
+
                     break;
             }
 
@@ -246,7 +253,7 @@ class Program
                     if (subPage.Count >= 1 && subPage[index].Type == ExplorerType.DIRECTORY)
                     {
                         var next = subPage[index].Path;
-                        if (Directory.Exists(next) && Util.IsReadableDir(next))
+                        if (Directory.Exists(next) && Util.IsReadableDir(next, ref ExceptionMessage))
                         {
                             currentPath = next;
                             dirChange = true;
@@ -255,7 +262,7 @@ class Program
                     break;
                 case ConsoleKey.LeftArrow:
                     var parent = Directory.GetParent(currentPath);
-                    if (parent != null && Util.IsReadableDir(parent.FullName))
+                    if (parent != null && Util.IsReadableDir(parent.FullName, ref ExceptionMessage))
                     {
                         currentPath = parent.FullName;
                         dirChange = true;
@@ -282,13 +289,11 @@ class Program
                             previousIndex = 0;
                             Console.Clear();
                             ExplorerDraw.Header(currentPath);
-                            ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                            ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage,
+                                    clipboardItem, notifyError, ref ExceptionMessage);
                             pageChange = true;
                         }
-                        else
-                        {
-                            // Todo: No Previous page signal
-                        }
+                        
                     }
                     break;
                 case ConsoleKey.N:
@@ -316,16 +321,23 @@ class Program
 
                             Console.Clear();
                             ExplorerDraw.Header(currentPath);
-                            ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage, clipboardItem);
+                            ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage,
+                                    clipboardItem, notifyError, ref ExceptionMessage);
                             pageChange = true;
                         }
-                        else
-                        {
-                            // Todo: No next page signal
-                        }
+                        
                     }
                     break;
+                case ConsoleKey.Backspace:
+                    notifyError = false;
+                    ExceptionMessage = string.Empty;
+                    ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage,
+                                    clipboardItem, notifyError, ref ExceptionMessage);
+                    break;
+
             }
+            if (!string.IsNullOrEmpty(ExceptionMessage))
+                notifyError = true;
 
         }
         Console.Write(showCursor); // Show Cursor
