@@ -15,6 +15,7 @@ public class ExplorerDraw
     const string white = "\x1b[38;2;244;241;222m";
     const string khaki = "\x1b[38;2;242;204;143m";
     const string mellow = "\x1b[38;2;154;151;132m";
+    const string red = "\e[38;2;186;61;52m";
 
     const string bgDark = "\x1b[48;2;31;43;61m";
     const string bgMellow = "\x1b[48;2;154;151;132m";
@@ -148,6 +149,8 @@ public class ExplorerDraw
         }
         else
         {
+            try
+            {
                 if (System.IO.Path.GetExtension(item.Path) == ".cs")
                     displayName = $"\x1b[38;5;11m  {item.DisplayName}\x1b[0m";
                 else if (System.IO.Path.GetExtension(item.Path) == ".c")
@@ -156,6 +159,9 @@ public class ExplorerDraw
                     displayName = $"\x1b[1;36m  {item.DisplayName}\x1b[0m";
                 else
                     displayName = $"\x1b[33m  {item.DisplayName}\x1b[0m";
+            }
+            catch (UnauthorizedAccessException ex) {return $"{red}Error:{reset} {ex.Message}";}
+
         }
 
         if (isCurrentItem)
