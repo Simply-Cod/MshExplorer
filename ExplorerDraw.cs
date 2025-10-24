@@ -7,19 +7,24 @@ namespace MshExplorer;
 
 public class ExplorerDraw
 {
-    const string reset = "\x1b[0m";
-    const string bold = "\x1b[1m";
-    const string orange = "\x1b[38;2;224;122;95m";
-    const string green = "\x1b[38;2;129;178;154m";
-    const string blue = "\x1b[38;2;61;64;91m";
-    const string white = "\x1b[38;2;244;241;222m";
-    const string khaki = "\x1b[38;2;242;204;143m";
-    const string mellow = "\x1b[38;2;154;151;132m";
-    const string red = "\e[38;2;186;61;52m";
+    const string reset =        "\e[0m";
+    const string deleteLine =   "\e[2K";
+    const string hideCursor =   "\e[?25l";
+    const string showCursor =   "\e[?25h";
 
-    const string bgDark = "\x1b[48;2;31;43;61m";
-    const string bgMellow = "\x1b[48;2;154;151;132m";
-    const string eraseLine = "\x1b[2K";
+    const string bold =         "\e[1m";
+    const string orange =       "\e[38;2;224;122;95m";
+    const string green =        "\e[38;2;129;178;154m";
+    const string blue =         "\e[38;2;41;81;242m";
+    const string darkBlue =     "\e[38;2;61;64;91m";
+    const string white =        "\e[38;2;244;241;222m";
+    const string khaki =        "\e[38;2;242;204;143m";
+    const string mellow =       "\e[38;2;154;151;132m";
+    const string red =          "\e[38;2;186;61;52m";
+
+    const string bgDark =       "\e[48;2;31;43;61m";
+    const string bgMellow =     "\e[48;2;154;151;132m";
+    const string eraseLine =    "\e[2K";
 
 
     public static void Border(int startX, int startY, int length, int height)
@@ -34,7 +39,7 @@ public class ExplorerDraw
                 if (i == 0)
                 {
                     if (j == 0)
-                        Console.Write($"{blue}╭");
+                        Console.Write($"{darkBlue}╭");
                     else if (j == length)
                         Console.Write("╮");
                     else
@@ -106,13 +111,13 @@ public class ExplorerDraw
     {
         string[] splits = path.Split('/');
         string header = string.Join($" {bold}{orange}\x1b[0m {green}{bold}", splits);
-        header = $"{header}\x1b[0m";
+        header = $"{header}{reset}";
 
         (int, int) cursorPos = Console.GetCursorPosition();
 
         Console.SetCursorPosition(0, 3);
-        Console.Write("\x1b[2K");
-        Console.Write("\x1b[0G");
+        Console.Write(deleteLine);
+        Console.Write("\e[0G"); // Move cursor to column 0
         Console.Write(header);
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
 
@@ -145,22 +150,22 @@ public class ExplorerDraw
         
         if (item.Type == ExplorerType.DIRECTORY)
         {
-            displayName = $"\x1b[38;5;105m\x1b[1m  {item.DisplayName}\x1b[0m";
+            displayName = $"\x1b[38;5;105m{bold}  {item.DisplayName}\x1b[0m";
         }
         else
         {
             try
             {
                 if (System.IO.Path.GetExtension(item.Path) == ".cs")
-                    displayName = $"\x1b[38;5;11m  {item.DisplayName}\x1b[0m";
+                    displayName = $"\x1b[38;5;11m  {item.DisplayName}{reset}";
                 else if (System.IO.Path.GetExtension(item.Path) == ".c")
-                    displayName = $"\x1b[38;5;208m  {item.DisplayName}\x1b[0m";
+                    displayName = $"\x1b[38;5;208m  {item.DisplayName}{reset}";
                 else if (ExplorerItem.IsBinaryFile(item.Path, 100))
-                    displayName = $"\x1b[1;36m  {item.DisplayName}\x1b[0m";
+                    displayName = $"\x1b[1;36m  {item.DisplayName}{reset}";
                 else
-                    displayName = $"\x1b[33m  {item.DisplayName}\x1b[0m";
+                    displayName = $"\x1b[33m  {item.DisplayName}{reset}";
             }
-            catch (UnauthorizedAccessException ex) {return $"{red}Error:{reset} {ex.Message}";}
+            catch (UnauthorizedAccessException) {return $"{red}     {item.DisplayName}{reset}";}
 
         }
 
@@ -187,7 +192,7 @@ public class ExplorerDraw
             }
             else
             {
-                Console.Write("\x1b[2K");
+                Console.Write(deleteLine);
 
             }
             if (i < subPage.Count)
@@ -217,7 +222,7 @@ public class ExplorerDraw
         }
         else
         {
-            Console.Write("\x1b[2K");
+            Console.Write(deleteLine);
         }
         Console.Write(WriteDisplayText(item, true)); // bool means selected item
         
@@ -234,7 +239,7 @@ public class ExplorerDraw
         }
         else
         {
-            Console.Write("\x1b[2K");
+            Console.Write(deleteLine);
         }
         Console.Write(WriteDisplayText(previousItem, false));
 
@@ -246,7 +251,7 @@ public class ExplorerDraw
         }
         else
         {
-            Console.Write("\x1b[2K");
+            Console.Write(deleteLine);
         }
         Console.Write(WriteDisplayText(currentItem, true));
     }
@@ -260,25 +265,25 @@ public class ExplorerDraw
         Console.Write($" {green}{bold}Add Item{reset} ");
 
         Console.SetCursorPosition(50, 0);
-        Console.Write(" \x1b[38;5;12m\x1b[0m End name with / to create a Directory");
+        Console.Write($" {blue}{reset} End name with / to create a Directory");
 
         Console.SetCursorPosition(3, 2);
         Console.Write("Enter to Confirm ─ Esc to Cancel ");
 
         Console.SetCursorPosition(2, 1); // Input location
         Console.Write($"{bold}>{reset} ");
-        Console.Write("\x1b[?25h");
+        Console.Write(showCursor);
     }
 
     public static void RemoveCommandLine((int, int) cursorPos)
     {
-        Console.Write("\x1b[2K");
-        Console.Write("\x1b[2K");Console.SetCursorPosition(0,0);
-        Console.Write("\x1b[2K");Console.SetCursorPosition(0,2);
-        Console.Write("\x1b[2K");
+        Console.Write(deleteLine);
+        Console.Write(deleteLine);Console.SetCursorPosition(0,0);
+        Console.Write(deleteLine);Console.SetCursorPosition(0,2);
+        Console.Write(deleteLine);
 
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-        Console.Write("\x1b[?25l");   
+        Console.Write(hideCursor);   
     }
 
 }
