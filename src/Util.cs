@@ -288,4 +288,10 @@ public class Util
         File.AppendAllText(logPath, errMessage);
     }
 
+    public static void Clear()
+    {
+        Console.SetCursorPosition(0, 0);
+        Console.Write("\e[J");
+    }
+
 }

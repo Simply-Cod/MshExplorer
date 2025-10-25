@@ -85,8 +85,7 @@ public class ExplorerDraw
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
-    public static void StatusBar(int itemStart, int rows, int pages,
-            int currentPage, ExplorerItem clipboardItem, bool notifyErr, ref string errMessage)
+    /* public static void StatusBar(int itemStart, ExplorerItem clipboardItem, bool notifyErr, ref string errMessage)
     {
         (int, int) cursorPos = Console.GetCursorPosition();
         int infoY = Math.Min(Console.WindowHeight - 1, itemStart + rows);
@@ -109,7 +108,7 @@ public class ExplorerDraw
 
 
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-    }
+    } */
 
     public static string Header(string path)
     {
@@ -136,8 +135,6 @@ public class ExplorerDraw
             $"{mellow}Navigate Up/Down            󰜷/󰁆 or k/j",
             "Move To Parent Directory    󰁎 or h",
             "Move To Sub Directory       󰜴 or l",
-            "Change Page Forward         <Ctrl-n>",
-            "Change Page Backwards       <Ctrl-p>",
             "Add File/Directory          a",
             "Delete File/Directory       d",
             "Copy/Yank File              y",
@@ -307,7 +304,7 @@ public class ExplorerDraw
 
         if (item.Type == ExplorerType.DIRECTORY)
         {
-            displayName = $"\x1b[38;5;105m{bold}  {item.DisplayName}\x1b[0m";
+            displayName = $"\x1b[38;5;105m{bold} {item.DisplayName}\x1b[0m";
         }
         else
         {
