@@ -7,22 +7,22 @@ namespace MshExplorer;
 
 public class ExplorerDraw
 {
-    const string reset =        "\e[0m";
-    const string deleteLine =   "\e[2K";
-    const string hideCursor =   "\e[?25l";
-    const string showCursor =   "\e[?25h";
+    const string reset = "\e[0m";
+    const string deleteLine = "\e[2K";
+    const string hideCursor = "\e[?25l";
+    const string showCursor = "\e[?25h";
 
-    const string bold =         "\e[1m";
-    const string orange =       "\e[38;2;224;122;95m";
-    const string green =        "\e[38;2;129;178;154m";
-    const string blue =         "\e[38;2;41;81;242m";
-    const string darkBlue =     "\e[38;2;61;64;91m";
-    const string mellow =       "\e[38;2;154;151;132m";
-    const string red =          "\e[38;2;186;61;52m";
+    const string bold = "\e[1m";
+    const string orange = "\e[38;2;224;122;95m";
+    const string green = "\e[38;2;129;178;154m";
+    const string blue = "\e[38;2;41;81;242m";
+    const string darkBlue = "\e[38;2;61;64;91m";
+    const string mellow = "\e[38;2;154;151;132m";
+    const string red = "\e[38;2;186;61;52m";
 
-    const string bgDark =       "\e[48;2;31;43;61m";
-    const string bgMellow =     "\e[48;2;154;151;132m";
-    const string eraseLine =    "\e[2K";
+    const string bgDark = "\e[48;2;31;43;61m";
+    const string bgMellow = "\e[48;2;154;151;132m";
+    const string eraseLine = "\e[2K";
 
 
     public static void Border(int startX, int startY, int length, int height)
@@ -86,7 +86,7 @@ public class ExplorerDraw
     }
 
     public static void StatusBar(int itemStart, int rows, int pages,
-            int currentPage, ExplorerItem clipboardItem,bool notifyErr, ref string errMessage)
+            int currentPage, ExplorerItem clipboardItem, bool notifyErr, ref string errMessage)
     {
         (int, int) cursorPos = Console.GetCursorPosition();
         int infoY = Math.Min(Console.WindowHeight - 1, itemStart + rows);
@@ -152,7 +152,7 @@ public class ExplorerDraw
     public static string WriteDisplayText(ExplorerItem item, bool isCurrentItem, ref string errMessage)
     {
         string displayName = string.Empty;
-        
+
         if (item.Type == ExplorerType.DIRECTORY)
         {
             displayName = $"\x1b[38;5;105m{bold}  {item.DisplayName}\x1b[0m";
@@ -170,11 +170,11 @@ public class ExplorerDraw
                 else
                     displayName = $"\x1b[33m  {item.DisplayName}{reset}";
             }
-            catch (UnauthorizedAccessException) 
+            catch (UnauthorizedAccessException)
             {
-               if (isCurrentItem) 
+                if (isCurrentItem)
                     return $"{red}    {item.DisplayName}{reset}";
-               else
+                else
                     return $"{red}     {item.DisplayName}{reset}";
             }
 
@@ -236,7 +236,7 @@ public class ExplorerDraw
             Console.Write(deleteLine);
         }
         Console.Write(WriteDisplayText(item, true, ref errMessage)); // bool means selected item
-        
+
     }
 
     public static void CurrentItem(bool showSideWindow, int previousIndex, int itemStart,
@@ -267,16 +267,19 @@ public class ExplorerDraw
         Console.Write(WriteDisplayText(currentItem, true, ref errMessage));
     }
 
- 
-    public static void CommandLine()
+
+    public static void CommandLine(string header, string toolTip)
     {
-        Border(0,0, 48, 2);
+        Border(0, 0, 48, 2);
 
         Console.SetCursorPosition(3, 0);
-        Console.Write($" {green}{bold}Add Item{reset} ");
+        Console.Write($" {green}{bold}{header}{reset} ");
 
-        Console.SetCursorPosition(50, 0);
-        Console.Write($" {blue}{reset} End name with / to create a Directory");
+        if (!string.IsNullOrEmpty(toolTip))
+        {
+            Console.SetCursorPosition(50, 0);
+            Console.Write($" {blue}{reset} {toolTip}");
+        }
 
         Console.SetCursorPosition(3, 2);
         Console.Write("Enter to Confirm ─ Esc to Cancel ");
@@ -289,12 +292,43 @@ public class ExplorerDraw
     public static void RemoveCommandLine((int, int) cursorPos)
     {
         Console.Write(deleteLine);
-        Console.Write(deleteLine);Console.SetCursorPosition(0,0);
-        Console.Write(deleteLine);Console.SetCursorPosition(0,2);
+        Console.Write(deleteLine); Console.SetCursorPosition(0, 0);
+        Console.Write(deleteLine); Console.SetCursorPosition(0, 2);
         Console.Write(deleteLine);
 
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-        Console.Write(hideCursor);   
+        Console.Write(hideCursor);
+    }
+
+    public static string GetFormattedText(ExplorerItem item)
+    {
+        string displayName = string.Empty;
+        string errMessage = string.Empty;
+
+        if (item.Type == ExplorerType.DIRECTORY)
+        {
+            displayName = $"\x1b[38;5;105m{bold}  {item.DisplayName}\x1b[0m";
+        }
+        else
+        {
+            try
+            {
+                if (System.IO.Path.GetExtension(item.Path) == ".cs")
+                    displayName = $"\x1b[38;5;11m {item.DisplayName}{reset}";
+                else if (System.IO.Path.GetExtension(item.Path) == ".c")
+                    displayName = $"\x1b[38;5;208m {item.DisplayName}{reset}";
+                else if (ExplorerItem.IsBinaryFile(item.Path, 100, ref errMessage))
+                    displayName = $"\x1b[1;36m {item.DisplayName}{reset}";
+                else
+                    displayName = $"\x1b[33m {item.DisplayName}{reset}";
+            }
+            catch (UnauthorizedAccessException)
+            {
+                    return $"{red} {item.DisplayName}{reset}";
+            }
+
+        }
+        return displayName;
     }
 
 }

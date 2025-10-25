@@ -223,6 +223,14 @@ class Program
                     }
 
                     break;
+                case '/':
+                    Console.Clear();
+                    ExplorerDraw.Header(currentPath);
+                    ExplorerDraw.StatusBar(itemStart, rows, pages, currentPage,
+                                clipboardItem, notifyError, ref ExceptionMessage);
+                    FileSearch.PatternMatch(currentPath, directoryItems);  
+                    dirChange = true;
+                    break;
             }
 
             switch (key.Key)

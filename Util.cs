@@ -24,7 +24,8 @@ public class Util
     public static string GetString()
     {
         (int, int) cursorPos = Console.GetCursorPosition();
-        ExplorerDraw.CommandLine();
+        string toolTip = " End name with / to create a Directory"; 
+        ExplorerDraw.CommandLine("Add Item", toolTip);
         StringBuilder inputBuilder = new();
         ConsoleKeyInfo key;
         int maxLength = 40;
