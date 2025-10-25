@@ -77,3 +77,5 @@ GeneratedFiles/
 
 # Ignore temporary files
 temp/
+
+Test.cs
