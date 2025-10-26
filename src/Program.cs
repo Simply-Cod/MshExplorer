@@ -51,10 +51,10 @@ class Program
             if (Console.WindowHeight != prevHeight)
             {
                 prevHeight = Console.WindowHeight;
-                
+
                 listWin.Height = (Console.WindowHeight - 7);
                 if (listWin.Resize(listWin.Height, directoryItems))
-                {   
+                {
                     updateFullWindow = true;
                 }
                 dirChange = true;
@@ -73,7 +73,7 @@ class Program
                 statusBar.Draw();
 
                 if (displayHelpWindow)
-                    ExplorerDraw.HelpWindow(userSettings);
+                    ExplorerDraw.HelpWindow();
 
                 updateFullWindow = false;
             }
@@ -94,7 +94,7 @@ class Program
                 statusBar.Draw();
 
                 if (displayHelpWindow)
-                    ExplorerDraw.HelpWindow(userSettings);
+                    ExplorerDraw.HelpWindow();
 
                 dirChange = false;
             }
@@ -102,27 +102,27 @@ class Program
             // Exceptions
             // ------------------------------------------------------
             // User setings
-            
-            
 
-                if (!string.IsNullOrWhiteSpace(userSettings.ExceptionMessage))
-                {
-                    statusBar.ErrorMessage = userSettings.ExceptionMessage;
-                    statusBar.Notify = true;
-                    statusBar.Draw();
-                    userSettings.ExceptionMessage = string.Empty;
-                }
 
-                // File Manipulation
-                if (!string.IsNullOrWhiteSpace(ExceptionMessage))
-                {
-                    statusBar.ErrorMessage = ExceptionMessage;
-                    statusBar.Notify = true;
-                    statusBar.Draw();
-                    ExceptionMessage = string.Empty;
-                }
 
-            
+            if (!string.IsNullOrWhiteSpace(userSettings.ExceptionMessage))
+            {
+                statusBar.ErrorMessage = userSettings.ExceptionMessage;
+                statusBar.Notify = true;
+                statusBar.Draw();
+                userSettings.ExceptionMessage = string.Empty;
+            }
+
+            // File Manipulation
+            if (!string.IsNullOrWhiteSpace(ExceptionMessage))
+            {
+                statusBar.ErrorMessage = ExceptionMessage;
+                statusBar.Notify = true;
+                statusBar.Draw();
+                ExceptionMessage = string.Empty;
+            }
+
+
             // Input
             // --------------------------------------------------------
             key = Console.ReadKey(true);
@@ -193,13 +193,15 @@ class Program
                     }
 
                     break;
+                    // Command line input ------------------------------------------------------
                 case ':':
                     // Todo: Add A Command Page and a tooltip letting users know about commands
                     string command = commandLine.GetString();
                     if (!string.IsNullOrEmpty(command))
                     {
                         CommandType type = 0;
-                        string value = CommandParser.Parse(command, ref type);
+                        string value;
+                        (type, value) = CommandParser.Parse(command);
 
                         switch (type)
                         {
@@ -208,17 +210,23 @@ class Program
                                 statusBar.Editor = userSettings.GetEditorStyle();
                                 dirChange = true;
                                 break;
+                                
+                            case CommandType.QUIT:
+                                isRunning = false;
+                                break;
+
                         }
 
                     }
+                    // ------------------------------------------------------------------------
 
                     break;
                 case 'e':
                     if (userSettings.Configs.Editor == string.Empty || userSettings.Configs.Editor == "null")
                     {
-                       string editor = commandLine.GetString();
-                       commandLine.Header = " Editor ";
-                       Editor.OpenEditor(directoryItems[listWin.SelectedIndex], editor);
+                        string editor = commandLine.GetString();
+                        commandLine.Header = " Editor ";
+                        Editor.OpenEditor(directoryItems[listWin.SelectedIndex], editor);
                     }
                     else
                     {

@@ -4,79 +4,49 @@ namespace MshExplorer;
 public enum CommandType
 {
     NONE,
+    QUIT,
     SET_EDITOR,
 }
 
-public enum FirstToken
-{
-    NONE,
-    SET,
-}
-public enum SecondToken
-{
-    NONE,
-    EDITOR,
-}
 
 class CommandParser
 {
-    private static readonly Dictionary<string,int>firstToken = new Dictionary<string, int>()
+    private static readonly Dictionary<string,CommandType> _commands = new()
     {
-        ["set"] = 1,
-    };
-    private static readonly Dictionary<string,int>secondToken = new Dictionary<string, int>()
-    {
-        ["editor"] = 1,
+        ["set editor"] = CommandType.SET_EDITOR,
+        ["quit"] = CommandType.QUIT,
     };
     
-
-    public static string Parse(string command, ref CommandType commandType)
+    public static (CommandType type, string val) Parse(string input)
     {
-        FirstToken token1 = 0;
-        SecondToken token2 = 0;
-        commandType = CommandType.NONE;
+        if (string.IsNullOrWhiteSpace(input))
+            return (CommandType.NONE, string.Empty);
 
-        
-        if (string.IsNullOrEmpty(command))
-            return string.Empty;
-        string[] tokens = command.Split(' ');
-        if (tokens.Length < 3)
-            return string.Empty;
+        string[] tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-        string value = tokens[2];
+        if (tokens.Length == 0)
+            return (CommandType.NONE, string.Empty);
 
-        if (firstToken.ContainsKey(tokens[0]))
-            token1 = (FirstToken)firstToken[tokens[0]];
+        string key = string.Empty;
+
+        if (tokens.Length > 1)
+            key = $"{tokens[0]} {tokens[1]}";
         else
-            return string.Empty;
+            key = tokens[0];
 
-        if (secondToken.ContainsKey(tokens[1]))
-            token2 = (SecondToken)secondToken[tokens[1]];
-        else 
-            return string.Empty;
-
-        if (token1 == FirstToken.NONE || token2 == MshExplorer.SecondToken.NONE)
-            return string.Empty;
-
-        switch (token1)
+        if (_commands.TryGetValue(key, out CommandType commandType))
         {
-            case FirstToken.SET:
-                
-                switch (token2)
-                {
-                    case SecondToken.EDITOR:
-                        
-                        commandType = CommandType.SET_EDITOR;
-                        return value;
-                }
+            string value;
+            if (tokens.Length > 2)
+                value = string.Join(' ', tokens.Skip(2));
+            else 
+                value = string.Empty;
 
-                break;
-
+            return (commandType, value);
         }
 
-        return string.Empty;
-    }
-
     
+        return (CommandType.NONE, string.Empty);  
+    }
 
 }

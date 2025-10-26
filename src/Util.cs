@@ -1,4 +1,3 @@
-using System.Text;
 
 namespace MshExplorer;
 
@@ -19,47 +18,6 @@ public class Util
         catch (UnauthorizedAccessException ex) {errMessage = $"Error: {ex.Message}"; return false; }
         catch (DirectoryNotFoundException ex) {errMessage = $"Error: {ex.Message}"; return false; }
         catch (IOException ex) {errMessage = $"Error: {ex.Message}"; return false; }
-    }
-
-    public static string GetString()
-    {
-        (int, int) cursorPos = Console.GetCursorPosition();
-        string toolTip = " End name with / to create a Directory"; 
-        ExplorerDraw.CommandLine("Add Item", toolTip);
-        StringBuilder inputBuilder = new();
-        ConsoleKeyInfo key;
-        int maxLength = 40;
-        string item = string.Empty;
-        while (true)
-        {
-            key = Console.ReadKey(true);
-
-            if (key.Key == ConsoleKey.Backspace && inputBuilder.Length > 0)
-            {
-                inputBuilder.Remove(inputBuilder.Length - 1, 1);
-                Console.Write("\b \b");
-            }
-            else if (inputBuilder.Length < maxLength && !char.IsControl(key.KeyChar))
-            {
-                inputBuilder.Append(key.KeyChar);
-                Console.Write(key.KeyChar);
-            }
-            else if (key.Key == ConsoleKey.Escape)
-            {
-                break;
-            }
-            else if (key.Key == ConsoleKey.Enter)
-            {
-                break;
-            }
-        }
-        if (key.Key == ConsoleKey.Enter)
-        {
-            item = inputBuilder.ToString();
-        }
-
-        ExplorerDraw.RemoveCommandLine(cursorPos);
-        return item;
     }
 
     public static void AddItem(string currentPath, string name, ref string errMessage)

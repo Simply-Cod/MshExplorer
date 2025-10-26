@@ -108,7 +108,7 @@ class ExplorerDraw
         return header;
     }
 
-    public static void HelpWindow(UserHandler settings)
+    public static void HelpWindow()
     {
         ExplorerDraw.Border(70, 3, 44, 12);
         string helpHeader = $"{bold}{green}Quick Help{reset}";
@@ -167,117 +167,6 @@ class ExplorerDraw
         return displayName;
     }
 
-
-    public static void InitItemList(bool showSideWindow, int rows,
-                            int columns, int itemStart, int leftPaneWidth, List<ExplorerItem> subPage, ref string errMessage)
-    {
-
-        for (int i = 0; i < rows; i++)
-        {
-            Console.SetCursorPosition(0, itemStart + i);
-            if (showSideWindow)
-            {
-                Console.Write(new string(' ', Math.Min(leftPaneWidth, Math.Max(0, columns))));
-                Console.SetCursorPosition(0, itemStart + i);
-            }
-            else
-            {
-                Console.Write(deleteLine);
-
-            }
-            if (i < subPage.Count)
-            {
-                Console.Write(WriteDisplayText(subPage[i], false, ref errMessage)); // False Means It is not selected
-            }
-        }
-
-        if (showSideWindow)
-        {
-        }
-        Console.SetCursorPosition(0, itemStart);
-
-    }
-    public static void CurrentItemAfterInit(bool showSideWindow, int index, int previousIndex, int itemStart,
-                       int leftPaneWidth, int columns, ExplorerItem item, ref string errMessage)
-    {
-        index = 0;
-        previousIndex = 0;
-
-        Console.SetCursorPosition(0, previousIndex + itemStart);
-        if (showSideWindow)
-        {
-            Console.Write(new string(' ', Math.Min(leftPaneWidth, Math.Max(0, columns))));
-            Console.SetCursorPosition(0, previousIndex + itemStart);
-        }
-        else
-        {
-            Console.Write(deleteLine);
-        }
-        Console.Write(WriteDisplayText(item, true, ref errMessage)); // bool means selected item
-
-    }
-
-    public static void CurrentItem(bool showSideWindow, int previousIndex, int itemStart,
-            int leftPaneWidth, int columns, int index, ExplorerItem previousItem, ExplorerItem currentItem, ref string errMessage)
-    {
-        Console.SetCursorPosition(0, previousIndex + itemStart);
-        if (showSideWindow)
-        {
-            Console.Write(new string(' ', Math.Min(leftPaneWidth, Math.Max(0, columns))));
-            Console.SetCursorPosition(0, previousIndex + itemStart);
-        }
-        else
-        {
-            Console.Write(deleteLine);
-        }
-        Console.Write(WriteDisplayText(previousItem, false, ref errMessage));
-
-        Console.SetCursorPosition(0, index + itemStart);
-        if (showSideWindow)
-        {
-            Console.Write(new string(' ', Math.Min(leftPaneWidth, Math.Max(0, columns))));
-            Console.SetCursorPosition(0, index + itemStart);
-        }
-        else
-        {
-            Console.Write(deleteLine);
-        }
-        Console.Write(WriteDisplayText(currentItem, true, ref errMessage));
-    }
-
-
-    public static void CommandLine(string header, string toolTip)
-    {
-        Border(0, 0, 48, 2);
-
-        Console.SetCursorPosition(3, 0);
-        Console.Write($" {green}{bold}{header}{reset} ");
-
-        if (!string.IsNullOrEmpty(toolTip))
-        {
-            Console.SetCursorPosition(50, 0);
-            Console.Write($" {blue}{reset} {toolTip}");
-        }
-
-        Console.SetCursorPosition(3, 2);
-        Console.Write("Enter to Confirm ─ Esc to Cancel ");
-
-        Console.SetCursorPosition(2, 1); // Input location
-        Console.Write($"{bold}>{reset} ");
-        Console.Write(showCursor);
-    }
-
-    public static void RemoveCommandLine((int, int) cursorPos)
-    {
-        Console.Write(deleteLine);
-        Console.Write(deleteLine); Console.SetCursorPosition(0, 0);
-        Console.Write(deleteLine); Console.SetCursorPosition(0, 2);
-        Console.Write(deleteLine);
-
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-        Console.Write(hideCursor);
-    }
-
     public static string GetFormattedText(ExplorerItem item)
     {
         string displayName = string.Empty;
@@ -307,6 +196,14 @@ class ExplorerDraw
 
         }
         return displayName;
+    }
+
+    public static void OutputText(string output) // Debug
+    {
+        Console.SetCursorPosition(15, 70);
+        Console.Write(output);
+
+        Console.SetCursorPosition(Console.WindowWidth / 2, Console.WindowHeight / 2);
     }
 
 }
