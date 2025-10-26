@@ -5,7 +5,7 @@ namespace MshExplorer;
 // │     │
 // ╰─────╯
 
-public class ExplorerDraw
+class ExplorerDraw
 {
     const string reset = "\e[0m";
     const string deleteLine = "\e[2K";
@@ -85,31 +85,7 @@ public class ExplorerDraw
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
-    /* public static void StatusBar(int itemStart, ExplorerItem clipboardItem, bool notifyErr, ref string errMessage)
-    {
-        (int, int) cursorPos = Console.GetCursorPosition();
-        int infoY = Math.Min(Console.WindowHeight - 1, itemStart + rows);
-
-        string clipboardText = string.Empty;
-        if (clipboardItem.Type != ExplorerType.NONE)
-            clipboardText = WriteDisplayText(clipboardItem, false, ref errMessage);
-
-        Console.SetCursorPosition(0, infoY);
-
-        string statusText =
-            $" Pages [{(pages == 0 ? 0 : currentPage + 1)}/{pages}] | Clipboard: {clipboardText}";
-
-
-        Console.Write(eraseLine);
-        if (!notifyErr)
-            Console.Write($"{bgDark}{bold}{green}{statusText}{bgDark}\x1b[K{reset}");
-        else
-            Console.Write($"{bgDark}{bold}{green}{statusText} {red}{errMessage}{reset}{bgDark}\x1b[K{reset}");
-
-
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-    } */
-
+    
     public static string Header(string path)
     {
         string[] splits = path.Split('/');
@@ -122,12 +98,17 @@ public class ExplorerDraw
         Console.Write(deleteLine);
         Console.Write("\e[0G"); // Move cursor to column 0
         Console.Write(header);
+
+        // Debug ----
+        // Console.SetCursorPosition(0, 4);
+        // Console.Write($"{blue}Debug:{reset} Columns: {Console.WindowWidth}, Rows: {Console.WindowHeight}");
+        // ----------
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
 
         return header;
     }
 
-    public static void HelpWindow()
+    public static void HelpWindow(UserHandler settings)
     {
         ExplorerDraw.Border(70, 3, 44, 12);
         string helpHeader = $"{bold}{green}Quick Help{reset}";
@@ -135,12 +116,13 @@ public class ExplorerDraw
             $"{mellow}Navigate Up/Down            󰜷/󰁆 or k/j",
             "Move To Parent Directory    󰁎 or h",
             "Move To Sub Directory       󰜴 or l",
+            "Open Editor                 e",
             "Add File/Directory          a",
             "Delete File/Directory       d",
             "Copy/Yank File              y",
             "Paste File                  p",
             "Remove Status Message       Backspace",
-            $"Quit                        q{reset}"
+           $"Quit                        q{reset}",
         ];
         ExplorerDraw.BorderText(70, 3, helpHeader, helpWindowText);
     }
@@ -211,7 +193,6 @@ public class ExplorerDraw
 
         if (showSideWindow)
         {
-            ExplorerDraw.HelpWindow();
         }
         Console.SetCursorPosition(0, itemStart);
 

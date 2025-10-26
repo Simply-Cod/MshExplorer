@@ -79,3 +79,5 @@ GeneratedFiles/
 temp/
 
 Test.cs
+settings.json
+explorer-config.txt

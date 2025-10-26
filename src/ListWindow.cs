@@ -97,8 +97,9 @@ class ListWindow
 
         }
         // This places the cursor on the selected row at redraw
-        int cursorRow = Math.Clamp(SelectedIndex - TopIndex, 0, Math.Max(0, ViewRows - 1));
-        Console.SetCursorPosition(TextLeft, StartY + 1 + cursorRow);
+        //int cursorRow = Math.Clamp(SelectedIndex - TopIndex, 0, Math.Max(0, ViewRows - 1));
+       // Console.SetCursorPosition(TextLeft, StartY + 1 + cursorRow);
+        Console.SetCursorPosition(_cursorPos.Item1, _cursorPos.Item2);
 
     }
 
@@ -186,8 +187,15 @@ class ListWindow
     private void ClearRow(int y)
     {
         (int, int) cursorPos = Console.GetCursorPosition();
-        Console.SetCursorPosition(TextLeft, y);
-        Console.Write(new string(' ', TextWidth));
+
+        // Test
+        int innerLeft = StartX + 1;
+        int innerWidth = Math.Max(0, Width - 1);
+
+        //----
+
+        Console.SetCursorPosition(innerLeft, y); // Test TextLeft replaced with innerLeft
+        Console.Write(new string(' ', innerWidth)); // and TextWidth replaced with innerWidth
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 

@@ -16,12 +16,14 @@ class CommandLine
 
     public string Header;
     public string ToolTip;
+    public string LastCommand;
     private (int, int) CursorPos;
 
     public CommandLine()
     {
         Header = string.Empty;
         ToolTip = string.Empty;
+        LastCommand = string.Empty;
     }
 
 
@@ -61,14 +63,13 @@ class CommandLine
         }
 
         RemoveCommandLine();
+        LastCommand = item;
         return item;
     }
 
 
 
-
-
-    private void DrawCommandLine()
+    public void DrawCommandLine()
     {
         CursorPos = Console.GetCursorPosition();
         int startX = 0;
@@ -132,7 +133,7 @@ class CommandLine
 
     }
 
-    private void RemoveCommandLine()
+    public void RemoveCommandLine()
     {
         Console.Write(deleteLine);
         Console.Write(deleteLine); Console.SetCursorPosition(0, 0);

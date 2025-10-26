@@ -17,34 +17,44 @@ class StatusBar
     public bool Notify = false;
     public int SelectedIndex;
     public int TotalItems;
+    public string Editor;
 
     public StatusBar()
     {
         ErrorMessage = string.Empty;
         ClipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
         StatusBarText = string.Empty;
+        Editor = string.Empty;
     }
 
     public void Draw()
     {
         (int, int) cursorPos = Console.GetCursorPosition();
-        Console.SetCursorPosition(0, Console.WindowHeight);
+        Console.SetCursorPosition(0, Math.Max(0, Console.WindowHeight - 1));
         StatusBarText = $" {SelectedIndex}/{TotalItems} ";
 
-        if (ClipboardItem.Type != ExplorerType.NONE)
-            StatusBarText = $"{StatusBarText} | {ExplorerDraw.GetFormattedText(ClipboardItem)}";
+        if (!string.IsNullOrEmpty(Editor))
+            StatusBarText = $"{StatusBarText} | {Editor}";
+
 
         Console.Write(eraseLine);
+
         if (Notify)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
-                StatusBarText = $"{StatusBarText} | {red}{ErrorMessage}{reset}";
+                StatusBarText = $"{StatusBarText}{bgDark} | {red}{ErrorMessage}{reset}";
         }
+        else
+        {
+            if (ClipboardItem.Type != ExplorerType.NONE)
+                StatusBarText = $"{StatusBarText}{bgDark} | {ExplorerDraw.GetFormattedText(ClipboardItem)}";
+        }
+
         Console.Write($"{bgDark} {StatusBarText}{bgDark}\x1b[K{reset}");
-
-
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
+
+
     public void AddClipboardItem(ExplorerItem item)
     {
         ClipboardItem = new(item.DisplayName, item.Path, item.Type);

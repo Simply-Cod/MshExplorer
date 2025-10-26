@@ -31,9 +31,15 @@ class Program
         List<ExplorerItem> directoryItems = [];
         directoryItems = ExplorerItem.GetDirItems(currentPath, ref ExceptionMessage);
 
+        UserHandler userSettings = new();
+        userSettings.ReadConfigs();
+
         CommandLine commandLine = new();
         ListWindow listWin = new(2, 5, 40, prevHeight - 7);
         StatusBar statusBar = new();
+        statusBar.Editor = userSettings.GetEditorStyle();
+
+
 
 
         // Main Loop
@@ -45,8 +51,13 @@ class Program
             if (Console.WindowHeight != prevHeight)
             {
                 prevHeight = Console.WindowHeight;
-                if (listWin.Resize(Console.WindowHeight, directoryItems))
+                
+                listWin.Height = (Console.WindowHeight - 7);
+                if (listWin.Resize(listWin.Height, directoryItems))
+                {   
                     updateFullWindow = true;
+                }
+                dirChange = true;
             }
 
             // Update
@@ -60,9 +71,9 @@ class Program
                 statusBar.SelectedIndex = listWin.SelectedIndex + 1;
                 statusBar.TotalItems = directoryItems.Count;
                 statusBar.Draw();
-                
+
                 if (displayHelpWindow)
-                    ExplorerDraw.HelpWindow();
+                    ExplorerDraw.HelpWindow(userSettings);
 
                 updateFullWindow = false;
             }
@@ -83,12 +94,35 @@ class Program
                 statusBar.Draw();
 
                 if (displayHelpWindow)
-                    ExplorerDraw.HelpWindow();
+                    ExplorerDraw.HelpWindow(userSettings);
 
                 dirChange = false;
             }
 
+            // Exceptions
+            // ------------------------------------------------------
+            // User setings
+            
+            
 
+                if (!string.IsNullOrWhiteSpace(userSettings.ExceptionMessage))
+                {
+                    statusBar.ErrorMessage = userSettings.ExceptionMessage;
+                    statusBar.Notify = true;
+                    statusBar.Draw();
+                    userSettings.ExceptionMessage = string.Empty;
+                }
+
+                // File Manipulation
+                if (!string.IsNullOrWhiteSpace(ExceptionMessage))
+                {
+                    statusBar.ErrorMessage = ExceptionMessage;
+                    statusBar.Notify = true;
+                    statusBar.Draw();
+                    ExceptionMessage = string.Empty;
+                }
+
+            
             // Input
             // --------------------------------------------------------
             key = Console.ReadKey(true);
@@ -117,42 +151,84 @@ class Program
                     dirChange = true;
                     break;
                 case 'l':
-                    if (directoryItems[listWin.SelectedIndex].Type == ExplorerType.DIRECTORY)
+                    if (directoryItems.Count > 0 && directoryItems[listWin.SelectedIndex].Type == ExplorerType.DIRECTORY)
                         currentPath = directoryItems[listWin.SelectedIndex].Path;
                     dirChange = true;
                     break;
                 case 'a':
                     commandLine.Header = "Add Item";
+                    commandLine.ToolTip = "End name with / to create a directory";
                     string itemName = commandLine.GetString();
                     if (!string.IsNullOrEmpty(itemName))
                     {
-                        Util.AddItem(currentPath, itemName, ref statusBar.ErrorMessage);
+                        Util.AddItem(currentPath, itemName, ref ExceptionMessage);
+                        dirChange = true;
+                    }
+                    commandLine.Header = string.Empty;
+                    commandLine.ToolTip = string.Empty;
+                    break;
+                case 'd':
+                    if (directoryItems.Count > 0)
+                    {
+                        Util.RemoveItem(directoryItems[listWin.SelectedIndex], ref ExceptionMessage);
                         dirChange = true;
                     }
                     break;
-                case 'd':
-                    Util.RemoveItem(directoryItems[listWin.SelectedIndex], ref statusBar.ErrorMessage);
-                    break;
                 case 'y':
-                    statusBar.AddClipboardItem(directoryItems[listWin.SelectedIndex]); 
+                    if (directoryItems.Count > 0)
+                        statusBar.AddClipboardItem(directoryItems[listWin.SelectedIndex]);
                     break;
                 case 'p':
                     if (statusBar.ClipboardItem.Type == ExplorerType.FILE)
                     {
-                        Util.PasteFile(statusBar.ClipboardItem, currentPath, ref statusBar.ErrorMessage);
-                        statusBar.ClearClipboardItem(); 
+                        Util.PasteFile(statusBar.ClipboardItem, currentPath, ref ExceptionMessage);
+                        statusBar.ClearClipboardItem();
                         dirChange = true;
                     }
-                    else
+                    else if (statusBar.ClipboardItem.Type == ExplorerType.DIRECTORY)
                     {
-                        Util.PasteDirectory(statusBar.ClipboardItem.Path, currentPath, ref statusBar.ErrorMessage);
+                        Util.PasteDirectory(statusBar.ClipboardItem.Path, currentPath, ref ExceptionMessage);
                         statusBar.ClearClipboardItem();
                         dirChange = true;
                     }
 
                     break;
-                case '/':
+                case ':':
+                    // Todo: Add A Command Page and a tooltip letting users know about commands
+                    string command = commandLine.GetString();
+                    if (!string.IsNullOrEmpty(command))
+                    {
+                        CommandType type = 0;
+                        string value = CommandParser.Parse(command, ref type);
 
+                        switch (type)
+                        {
+                            case CommandType.SET_EDITOR:
+                                userSettings.SetEditor(value);
+                                statusBar.Editor = userSettings.GetEditorStyle();
+                                dirChange = true;
+                                break;
+                        }
+
+                    }
+
+                    break;
+                case 'e':
+                    if (userSettings.Configs.Editor == string.Empty || userSettings.Configs.Editor == "null")
+                    {
+                       string editor = commandLine.GetString();
+                       commandLine.Header = " Editor ";
+                       Editor.OpenEditor(directoryItems[listWin.SelectedIndex], editor);
+                    }
+                    else
+                    {
+                        Editor.OpenEditor(directoryItems[listWin.SelectedIndex], userSettings.Configs.Editor);
+                    }
+                    dirChange = true;
+                    break;
+                case '/':
+                    FileSearch.PatternMatch(currentPath, directoryItems, listWin, statusBar);
+                    dirChange = true;
                     break;
             }
 
@@ -171,7 +247,7 @@ class Program
                     statusBar.Draw();
                     break;
                 case ConsoleKey.RightArrow:
-                    if (directoryItems[listWin.SelectedIndex].Type == ExplorerType.DIRECTORY)
+                    if (directoryItems.Count > 0 && directoryItems[listWin.SelectedIndex].Type == ExplorerType.DIRECTORY)
                         currentPath = directoryItems[listWin.SelectedIndex].Path;
                     dirChange = true;
 
@@ -181,12 +257,13 @@ class Program
                     if (!string.IsNullOrEmpty(tryGetPath))
                         currentPath = tryGetPath;
                     dirChange = true;
-
                     break;
 
 
                 case ConsoleKey.Backspace:
-                    ExceptionMessage = string.Empty;
+                    statusBar.ErrorMessage = string.Empty;
+                    statusBar.Notify = false;
+                    statusBar.Draw();
                     break;
 
             }

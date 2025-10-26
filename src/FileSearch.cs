@@ -2,52 +2,42 @@ using System.Text;
 
 namespace MshExplorer;
 
-public class FileSearch
+class FileSearch
 {
 
-    public static void PatternMatch(string currentPath, List<ExplorerItem> currentList)
+    public static void PatternMatch(string currentPath, List<ExplorerItem> currentList, ListWindow listWin, StatusBar status)
     {
-        int topBuffer = 10;
-        int maxListLength = Console.WindowHeight - topBuffer;
-        int count = 0;
+        CommandLine cli = new();
+        StringBuilder pattern = new();
+        string compare = string.Empty;
         List<ExplorerItem> searchList = new();
 
-        (int, int) cursorPos = Console.GetCursorPosition();
-        ExplorerDraw.CommandLine("Search", string.Empty);
-        StringBuilder inputBuilder = new();
-        string comp = string.Empty;
         ConsoleKeyInfo key;
+
         int maxLength = 40;
+
         try
         {
-            (int, int) tempCursorPos = Console.GetCursorPosition();
-            Console.SetCursorPosition(0, 5);
-            Console.Write("\e[0J");
-            foreach (var f in currentList)
-            {
-                if (count >= maxListLength)
-                    break;
-                Console.WriteLine(ExplorerDraw.GetFormattedText(f));
-                count++;
-            }
-            count = 0;
-            Console.SetCursorPosition(tempCursorPos.Item1, tempCursorPos.Item2);
-            comp = inputBuilder.ToString();
+
+            listWin.SelectedIndex = 0;
+            listWin.TopIndex = 0;
+            listWin.DrawListFull(currentList);
+            status.TotalItems = currentList.Count;
+            status.SelectedIndex = 0;
+            status.Draw();
+            cli.DrawCommandLine();
             while (true)
             {
-                maxListLength = Console.WindowHeight - topBuffer;
-
-
                 key = Console.ReadKey(true);
 
-                if (key.Key == ConsoleKey.Backspace && inputBuilder.Length > 0)
+                if (key.Key == ConsoleKey.Backspace && pattern.Length > 0)
                 {
-                    inputBuilder.Remove(inputBuilder.Length - 1, 1);
+                    pattern.Remove(pattern.Length - 1, 1);
                     Console.Write("\b \b");
                 }
-                else if (inputBuilder.Length < maxLength && !char.IsControl(key.KeyChar))
+                else if (pattern.Length < maxLength && !char.IsControl(key.KeyChar))
                 {
-                    inputBuilder.Append(key.KeyChar);
+                    pattern.Append(key.KeyChar);
                     Console.Write(key.KeyChar);
                 }
                 else if (key.Key == ConsoleKey.Escape)
@@ -58,40 +48,24 @@ public class FileSearch
                 {
                     break;
                 }
-                var fileQuery = currentList.Where(f => f.DisplayName.Contains(inputBuilder.ToString(),
+                var fileQuery = currentList.Where(f => f.DisplayName.Contains(pattern.ToString(),
                                                 StringComparison.OrdinalIgnoreCase));
 
                 searchList = fileQuery.ToList();
-                if (comp != inputBuilder.ToString())
-                {
-                    tempCursorPos = Console.GetCursorPosition();
-                    Console.SetCursorPosition(0, 5);
-                    Console.Write("\e[0J");
-                    foreach (var f in fileQuery)
-                    {
-                        Console.WriteLine(ExplorerDraw.GetFormattedText(f));
-                        if (count >= maxListLength)
-                            break;
-                        count++;
+                listWin.SelectedIndex = 0;
+                listWin.TopIndex = 0;
+                listWin.DrawListFull(searchList);
+                status.TotalItems = searchList.Count;
+                status.SelectedIndex = 0;
+                status.Draw();
 
-                    }
-                    count = 0;
-                    Console.SetCursorPosition(tempCursorPos.Item1, tempCursorPos.Item2);
-                    comp = inputBuilder.ToString();
-                }
             }
+
         }
-        catch
+        catch (Exception)
         {
 
         }
-        ExplorerDraw.RemoveCommandLine(cursorPos);
-
-        // Todo:
-        // Add Navigation and selection to search results here
-        // Or create a new method for it
-        // Also fix statusbar being erased
-
-
+        cli.RemoveCommandLine();
     }
 }
