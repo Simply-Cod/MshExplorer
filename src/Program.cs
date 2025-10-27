@@ -15,15 +15,17 @@ class Program
         bool isRunning = true;
         bool updateFullWindow = true;
         bool dirChange = false;
+        bool configChange = true;
 
         string currentPath = Directory.GetCurrentDirectory();
-        string home = currentPath;
+        string homePath = currentPath;
         string ExceptionMessage = string.Empty;
         string header = string.Empty;
 
         ConsoleKeyInfo key;
         Console.Write(hideCursor);
         Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.Title = "Msh Explorer";
         Console.CancelKeyPress += (s, e) =>
         {
             Console.Write(showCursor);
@@ -44,7 +46,6 @@ class Program
         ListWindow listWindow = new(width: 40, directoryItems);
         FloatingWindow floatingWin = new(45, 15);
         StatusBar statusBar = new();
-        statusBar.Editor = userSettings.GetEditorStyle();
 
 
         // Main Loop
@@ -59,13 +60,20 @@ class Program
                 updateFullWindow = true;
                 dirChange = true;
             }
+            if (configChange)
+            {
+                pathBar.UpdateConfigs(userSettings.Configs);
+                listWindow.UpdateConfigs(userSettings.Configs);
+                floatingWin.UpdateConfigs(userSettings.Configs);
+                statusBar.UpdateConfigs(userSettings.Configs);
+                configChange = false;
+            }
 
             // Update
             // -------------------------------------------------------
             if (updateFullWindow)
             {
                 Util.Clear();
-                //ExplorerDraw.Header(currentPath);
                 pathBar.Draw(currentPath);
                 listWindow.DrawBorder();
                 listWindow.DrawList();
@@ -84,7 +92,6 @@ class Program
                 Util.Clear();
                 directoryItems.Clear();
                 directoryItems = ExplorerItem.GetDirItems(currentPath, ref statusBar.ErrorMessage);
-                //ExplorerDraw.Header(currentPath);
                 pathBar.Draw(currentPath);
                 listWindow.SetItems(directoryItems);
                 listWindow.DrawBorder();
@@ -171,7 +178,8 @@ class Program
                     {
                         if (pathBar.WriteAccess)
                         {
-                            Util.RemoveItem(listWindow.Items[listWindow.SelectedIndex], ref ExceptionMessage);
+                            Util.RemoveItem(listWindow.Items[listWindow.SelectedIndex],
+                                    ref ExceptionMessage, userSettings.Configs.NerdFont);
                             dirChange = true;
                         }
                         else
@@ -218,15 +226,27 @@ class Program
 
                         switch (type)
                         {
+                            case CommandType.QUIT:
+                                isRunning = false;
+                                break;
+
+                            case CommandType.HOME:
+                                currentPath = homePath;
+                                dirChange = true;
+                                break;
                             case CommandType.SET_EDITOR:
                                 userSettings.SetEditor(value);
                                 statusBar.Editor = userSettings.GetEditorStyle();
                                 dirChange = true;
+                                configChange = true;
                                 break;
 
-                            case CommandType.QUIT:
-                                isRunning = false;
+                            case CommandType.SET_NERDFONT:
+                                userSettings.SetNerdFont(value);
+                                dirChange = true;
+                                configChange = true;
                                 break;
+
 
                         }
                     }
@@ -270,7 +290,7 @@ class Program
 
                     break;
                 case ConsoleKey.DownArrow:
-                    listWindow.ScrollUp();
+                    listWindow.ScrollDown();
                     statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                     statusBar.Draw();
                     break;

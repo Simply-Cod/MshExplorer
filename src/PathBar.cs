@@ -11,6 +11,7 @@ class PathBar
     const string orange = "\e[38;2;224;122;95m";
 
     public bool WriteAccess;
+    public bool NerdFont;
 
     public void Draw(string path)
     {
@@ -62,6 +63,11 @@ class PathBar
         }
         catch (UnauthorizedAccessException){ return false;}
         catch (Exception) {return false;}
+    }
+
+    public void UpdateConfigs(UserConfigs configs)
+    {
+        NerdFont = configs.NerdFont;
     }
 
 }

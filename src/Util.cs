@@ -72,7 +72,7 @@ public class Util
         }
     }
 
-    public static void RemoveItem(ExplorerItem item, ref string errMessage)
+    public static void RemoveItem(ExplorerItem item, ref string errMessage, bool nerdFont)
     {
         bool dirWithContent = false;
         (int, int) cursorPos = Console.GetCursorPosition();
@@ -92,7 +92,7 @@ public class Util
 
         if (dirWithContent)
         {
-            string format = ExplorerDraw.WriteDisplayText(item, false, ref errMessage);
+            string format = Ansi.GetFormattedText(item, nerdFont);
             Console.Write($"   Remove {format} And it's Content?"); Console.SetCursorPosition(0, 1);
             Console.Write("    (y)Yes (n)No");
             char key = 'a';

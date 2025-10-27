@@ -39,37 +39,37 @@ class UserHandler
             return val;
 
         return string.Empty;
-        
+
     }
 
     public void WriteConfigs()
     {
-       try
-       {
-           string json = JsonSerializer.Serialize(Configs, new JsonSerializerOptions {WriteIndented = true}); 
-           File.WriteAllText(Path, json);
-       }
-       catch (Exception ex)
-       {
+        try
+        {
+            string json = JsonSerializer.Serialize(Configs, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(Path, json);
+        }
+        catch (Exception ex)
+        {
             ExceptionMessage = ex.Message;
-       }
+        }
     }
 
     public void ReadConfigs()
     {
-       if (!File.Exists(Path))
-           return;
+        if (!File.Exists(Path))
+            return;
 
-       try
-       {
-           string json = File.ReadAllText(Path);
-           if (!string.IsNullOrWhiteSpace(json))
-               Configs = JsonSerializer.Deserialize<UserConfigs>(json) ?? new();
-       }
-       catch (Exception ex)
-       {
+        try
+        {
+            string json = File.ReadAllText(Path);
+            if (!string.IsNullOrWhiteSpace(json))
+                Configs = JsonSerializer.Deserialize<UserConfigs>(json) ?? new();
+        }
+        catch (Exception ex)
+        {
             ExceptionMessage = ex.Message;
-       }
+        }
     }
 
     public void SetEditor(string editor)
@@ -92,7 +92,23 @@ class UserHandler
         {
             ExceptionMessage = "Not valid editor";
         }
-        
+
+    }
+
+    public void SetNerdFont(string val)
+    {
+        if (val == "true" || val == "false")
+        {
+            if (val == "true")
+            {
+                Configs.NerdFont = true;
+            }
+            else if (val == "false")
+            {
+                Configs.NerdFont = false;
+            }
+            WriteConfigs();
+        }
     }
 
 
@@ -100,7 +116,8 @@ class UserHandler
 
 class UserConfigs
 {
-    public string Editor {get; set;} = string.Empty;
+    public string Editor { get; set; } = string.Empty;
+    public bool NerdFont { get; set; } = false;
 }
 
 

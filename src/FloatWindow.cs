@@ -24,6 +24,8 @@ class FloatingWindow
     public int Width;
     public int Height;
 
+    public bool NerdFont;
+
     public FloatingWindow(int width, int height)
     {
         Width = width;
@@ -36,6 +38,8 @@ class FloatingWindow
 
         ScreenSizeBigEnough = ListWindowRequiredWidth + (Width + RightPadding) < Console.WindowWidth &&
             Height + TopPadding < Console.WindowHeight;
+
+        NerdFont = false;
     }
 
     public bool CheckWindowSize()
@@ -114,6 +118,11 @@ class FloatingWindow
             Console.SetCursorPosition(StartX, StartY + i);
         }
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
+    }
+
+    public void UpdateConfigs(UserConfigs configs)
+    {
+        NerdFont = configs.NerdFont;
     }
 
 

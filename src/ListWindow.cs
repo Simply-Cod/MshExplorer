@@ -21,6 +21,8 @@ class ListWindow
     public int TopIndex;
     public List<ExplorerItem> Items;
 
+    public bool NerdFont;
+
 
     public ListWindow(int width, List<ExplorerItem> items)
     {
@@ -30,6 +32,7 @@ class ListWindow
         TopIndex = 0;
         ScrollOffset = 0;
         Items = items;
+        NerdFont = false;
     }
 
     public void DrawBorder()
@@ -120,7 +123,7 @@ class ListWindow
 
             if (itemIndex < Items.Count)
             {
-                string text = ExplorerDraw.GetFormattedText(Items[itemIndex]);
+                string text = Ansi.GetFormattedText(Items[itemIndex], NerdFont);
 
                 if (itemIndex == SelectedIndex)
                     Console.Write($" {orange}{bold}➤{reset} {text.PadRight(Width - textIndent)}{reset}");
@@ -143,4 +146,11 @@ class ListWindow
 
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
+
+    public void UpdateConfigs(UserConfigs configs)
+    {
+        NerdFont = configs.NerdFont;
+    }
+
+
 }
