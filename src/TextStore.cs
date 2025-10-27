@@ -19,6 +19,7 @@ static class TextStore
             "Open Editor                 e",
             "Explorer CommandLine        :",
             "Toggle floating Window      ?",
+            "Search Index                /",
             "Remove Status Message       Backspace",
            $"Quit                        q{reset}",
         ];

@@ -38,12 +38,10 @@ class Program
         userSettings.ReadConfigs();
 
         CommandLine commandLine = new();
-        ListWindow listWin = new(2, 5, 40, prevHeight - 7);
+        ListWindow listWindow = new(width: 40, directoryItems);
         FloatingWindow floatingWin = new(45, 15);
         StatusBar statusBar = new();
         statusBar.Editor = userSettings.GetEditorStyle();
-
-
 
 
         // Main Loop
@@ -54,12 +52,8 @@ class Program
             if (Console.WindowHeight != prevHeight)
             {
                 prevHeight = Console.WindowHeight;
-
-                listWin.Height = (Console.WindowHeight - 7);
-                if (listWin.Resize(listWin.Height, directoryItems))
-                {
-                    updateFullWindow = true;
-                }
+                listWindow.SetHeight();
+                updateFullWindow = true;
                 dirChange = true;
             }
 
@@ -69,13 +63,13 @@ class Program
             {
                 Util.Clear();
                 ExplorerDraw.Header(currentPath);
-                listWin.DrawBorder();
-                listWin.DrawListFull(directoryItems);
-                statusBar.SelectedIndex = listWin.SelectedIndex + 1;
+                listWindow.DrawBorder();
+                listWindow.DrawList();
                 statusBar.TotalItems = directoryItems.Count;
+                statusBar.SelectedIndex = listWindow.SelectedIndex;
                 statusBar.Draw();
 
-                if (floatingWin.CheckWindowSize())
+                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
                     floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
 
                 updateFullWindow = false;
@@ -87,13 +81,12 @@ class Program
                 Util.Clear();
                 directoryItems.Clear();
                 directoryItems = ExplorerItem.GetDirItems(currentPath, ref statusBar.ErrorMessage);
-                listWin.TopIndex = 0;
-                listWin.SelectedIndex = 0;
                 ExplorerDraw.Header(currentPath);
-                listWin.DrawBorder();
-                listWin.DrawListFull(directoryItems);
-                statusBar.SelectedIndex = listWin.SelectedIndex + 1;
-                statusBar.TotalItems = directoryItems.Count;
+                listWindow.SetItems(directoryItems);
+                listWindow.DrawBorder();
+                listWindow.DrawList();
+                statusBar.TotalItems = listWindow.Items.Count;
+                statusBar.SelectedIndex = listWindow.SelectedIndex;
                 statusBar.Draw();
 
                 if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
@@ -136,15 +129,15 @@ class Program
                     isRunning = false;
                     break;
                 case 'j':
-                    listWin.MoveSelection(directoryItems, +1);
-                    statusBar.SelectedIndex = listWin.SelectedIndex + 1;
-                    statusBar.TotalItems = directoryItems.Count;
+                    listWindow.ScrollDown();
+                    statusBar.TotalItems = listWindow.Items.Count;
+                    statusBar.SelectedIndex = listWindow.SelectedIndex;
                     statusBar.Draw();
                     break;
                 case 'k':
-                    listWin.MoveSelection(directoryItems, -1);
-                    statusBar.SelectedIndex = listWin.SelectedIndex + 1;
-                    statusBar.TotalItems = directoryItems.Count;
+                    listWindow.ScrollUp();
+                    statusBar.TotalItems = listWindow.Items.Count;
+                    statusBar.SelectedIndex = listWindow.SelectedIndex;
                     statusBar.Draw();
                     break;
                 case 'h':
@@ -154,9 +147,11 @@ class Program
                     dirChange = true;
                     break;
                 case 'l':
-                    if (directoryItems.Count > 0 && directoryItems[listWin.SelectedIndex].Type == ExplorerType.DIRECTORY)
-                        currentPath = directoryItems[listWin.SelectedIndex].Path;
-                    dirChange = true;
+                    if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.DIRECTORY)
+                    {
+                        currentPath = listWindow.Items[listWindow.SelectedIndex].Path;
+                        dirChange = true;
+                    }
                     break;
                 case 'a':
                     commandLine.Header = "Add Item";
@@ -173,13 +168,13 @@ class Program
                 case 'd':
                     if (directoryItems.Count > 0)
                     {
-                        Util.RemoveItem(directoryItems[listWin.SelectedIndex], ref ExceptionMessage);
+                        Util.RemoveItem(listWindow.Items[listWindow.SelectedIndex], ref ExceptionMessage);
                         dirChange = true;
                     }
                     break;
                 case 'y':
-                    if (directoryItems.Count > 0)
-                        statusBar.AddClipboardItem(directoryItems[listWin.SelectedIndex]);
+                    statusBar.ClipboardItem = listWindow.Items[listWindow.SelectedIndex];
+                    statusBar.Draw();
                     break;
                 case 'p':
                     if (statusBar.ClipboardItem.Type == ExplorerType.FILE)
@@ -196,7 +191,7 @@ class Program
                     }
 
                     break;
-                    // Command line input ------------------------------------------------------
+                // Command line input ------------------------------------------------------
                 case ':':
                     // Todo: Add A Command Page and a tooltip letting users know about commands
                     string command = commandLine.GetString();
@@ -213,13 +208,12 @@ class Program
                                 statusBar.Editor = userSettings.GetEditorStyle();
                                 dirChange = true;
                                 break;
-                                
+
                             case CommandType.QUIT:
                                 isRunning = false;
                                 break;
 
                         }
-
                     }
                     // ------------------------------------------------------------------------
 
@@ -229,17 +223,18 @@ class Program
                     {
                         string editor = commandLine.GetString();
                         commandLine.Header = " Editor ";
-                        Editor.OpenEditor(directoryItems[listWin.SelectedIndex], editor);
+                        Editor.OpenEditor(listWindow.Items[listWindow.SelectedIndex], editor);
                     }
                     else
                     {
-                        Editor.OpenEditor(directoryItems[listWin.SelectedIndex], userSettings.Configs.Editor);
+                        Editor.OpenEditor(listWindow.Items[listWindow.SelectedIndex], userSettings.Configs.Editor);
                     }
                     dirChange = true;
                     break;
                 case '/':
-                    FileSearch.PatternMatch(currentPath, directoryItems, listWin, statusBar);
-                    dirChange = true;
+                    bool success = FileSearch.PatternMatch(currentPath, listWindow.Items, listWindow, statusBar);
+                    if (!success)
+                        dirChange = true;
                     break;
                 case '?':
                     floatingWin.HideWindow = !floatingWin.HideWindow;
@@ -254,22 +249,24 @@ class Program
             switch (key.Key)
             {
                 case ConsoleKey.UpArrow:
-                    listWin.MoveSelection(directoryItems, -1);
-                    statusBar.SelectedIndex = listWin.SelectedIndex + 1;
-                    statusBar.TotalItems = directoryItems.Count;
+                    listWindow.ScrollUp();
+                    statusBar.TotalItems = listWindow.Items.Count;
+                    statusBar.SelectedIndex = listWindow.SelectedIndex;
                     statusBar.Draw();
+
                     break;
                 case ConsoleKey.DownArrow:
-                    listWin.MoveSelection(directoryItems, +1);
-                    statusBar.SelectedIndex = listWin.SelectedIndex + 1;
-                    statusBar.TotalItems = directoryItems.Count;
+                    listWindow.ScrollUp();
+                    statusBar.TotalItems = listWindow.Items.Count;
+                    statusBar.SelectedIndex = listWindow.SelectedIndex;
                     statusBar.Draw();
                     break;
                 case ConsoleKey.RightArrow:
-                    if (directoryItems.Count > 0 && directoryItems[listWin.SelectedIndex].Type == ExplorerType.DIRECTORY)
-                        currentPath = directoryItems[listWin.SelectedIndex].Path;
-                    dirChange = true;
-
+                    if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.DIRECTORY)
+                    {
+                        currentPath = listWindow.Items[listWindow.SelectedIndex].Path;
+                        dirChange = true;
+                    }
                     break;
                 case ConsoleKey.LeftArrow:
                     string? tryGetPath = Path.GetDirectoryName(currentPath);

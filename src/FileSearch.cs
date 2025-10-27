@@ -5,7 +5,7 @@ namespace MshExplorer;
 class FileSearch
 {
 
-    public static void PatternMatch(string currentPath, List<ExplorerItem> currentList, ListWindow listWin, StatusBar status)
+    public static bool PatternMatch(string currentPath, List<ExplorerItem> currentList, ListWindow listWin, StatusBar status)
     {
         CommandLine cli = new();
         StringBuilder pattern = new();
@@ -21,7 +21,7 @@ class FileSearch
 
             listWin.SelectedIndex = 0;
             listWin.TopIndex = 0;
-            listWin.DrawListFull(currentList);
+            listWin.DrawList();
             status.TotalItems = currentList.Count;
             status.SelectedIndex = 0;
             status.Draw();
@@ -42,30 +42,31 @@ class FileSearch
                 }
                 else if (key.Key == ConsoleKey.Escape)
                 {
-                    break;
+                    cli.RemoveCommandLine();
+                    return false;
                 }
                 else if (key.Key == ConsoleKey.Enter)
                 {
-                    break;
+                    cli.RemoveCommandLine();
+                    return true;
                 }
                 var fileQuery = currentList.Where(f => f.DisplayName.Contains(pattern.ToString(),
                                                 StringComparison.OrdinalIgnoreCase));
-
                 searchList = fileQuery.ToList();
                 listWin.SelectedIndex = 0;
                 listWin.TopIndex = 0;
-                listWin.DrawListFull(searchList);
+                listWin.SetItems(searchList);
+                listWin.DrawList();
                 status.TotalItems = searchList.Count;
                 status.SelectedIndex = 0;
                 status.Draw();
-
             }
 
         }
         catch (Exception)
         {
-
+            cli.RemoveCommandLine();
+            return false;
         }
-        cli.RemoveCommandLine();
     }
 }

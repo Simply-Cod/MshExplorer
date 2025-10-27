@@ -100,7 +100,7 @@ class ExplorerDraw
 
         (int, int) cursorPos = Console.GetCursorPosition();
 
-        Console.SetCursorPosition(0, 3);
+        Console.SetCursorPosition(0, 5);
         Console.Write(deleteLine);
         Console.Write("\e[0G"); // Move cursor to column 0
         Console.Write(header);
