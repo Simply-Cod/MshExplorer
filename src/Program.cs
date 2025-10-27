@@ -1,4 +1,7 @@
-﻿
+﻿// unicode for File 🗎
+// unicode for folder 🖿 🗁 🗀
+// unicode for info 🛈
+
 namespace MshExplorer;
 
 class Program
@@ -36,6 +39,7 @@ class Program
 
         CommandLine commandLine = new();
         ListWindow listWin = new(2, 5, 40, prevHeight - 7);
+        FloatingWindow floatingWin = new(45, 15);
         StatusBar statusBar = new();
         statusBar.Editor = userSettings.GetEditorStyle();
 
@@ -46,7 +50,6 @@ class Program
         // ---------------------------------------------------------------------------
         while (isRunning)
         {
-            bool displayHelpWindow = (Console.WindowHeight > 30) && (Console.WindowWidth > 100);
 
             if (Console.WindowHeight != prevHeight)
             {
@@ -72,8 +75,8 @@ class Program
                 statusBar.TotalItems = directoryItems.Count;
                 statusBar.Draw();
 
-                if (displayHelpWindow)
-                    ExplorerDraw.HelpWindow();
+                if (floatingWin.CheckWindowSize())
+                    floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
 
                 updateFullWindow = false;
             }
@@ -93,8 +96,8 @@ class Program
                 statusBar.TotalItems = directoryItems.Count;
                 statusBar.Draw();
 
-                if (displayHelpWindow)
-                    ExplorerDraw.HelpWindow();
+                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
+                    floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
 
                 dirChange = false;
             }
@@ -238,6 +241,14 @@ class Program
                     FileSearch.PatternMatch(currentPath, directoryItems, listWin, statusBar);
                     dirChange = true;
                     break;
+                case '?':
+                    floatingWin.HideWindow = !floatingWin.HideWindow;
+                    if (floatingWin.HideWindow)
+                        floatingWin.ClearWindow();
+                    else
+                        floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
+                    break;
+
             }
 
             switch (key.Key)
