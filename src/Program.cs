@@ -24,6 +24,7 @@ class Program
 
         ConsoleKeyInfo key;
         Console.Write(hideCursor);
+        Console.Write("\e[?1049h"); // Swap to alternative screen buffer so the it stops redrawing
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Console.Title = "Msh Explorer";
         Console.CancelKeyPress += (s, e) =>
@@ -132,6 +133,11 @@ class Program
             // Input
             // --------------------------------------------------------
             key = Console.ReadKey(true);
+
+            while (Console.KeyAvailable) // Empty out input buffer
+            {
+                Console.ReadKey(true);
+            }
 
             switch (key.KeyChar)
             {
@@ -319,6 +325,7 @@ class Program
 
         }
         Console.Write(showCursor); // Show Cursor
+        Console.Write("\x1b[?1049l"); // Deactivate alternative screen buffer
         Console.Clear();
     }
 }

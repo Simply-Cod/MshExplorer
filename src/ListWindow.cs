@@ -46,8 +46,8 @@ class ListWindow
 
         for (int i = 0; i <= Height; i++)
         {
-            Console.SetCursorPosition(StartX, StartY + i);
-
+            //Console.SetCursorPosition(StartX, StartY + i);
+            Console.Write($"\x1b[{StartY + i};{StartX + 1}H"); // Maybe faster than setcursor
             if (i == 0)
                 Console.Write(top);
             else if (i == Height)
@@ -123,7 +123,9 @@ class ListWindow
 
             if (itemIndex < Items.Count)
             {
-                string text = Ansi.GetFormattedText(Items[itemIndex], NerdFont);
+                //Issue: Ansi.GetFormattedText Slows down linux terminal Alot
+                //string text = Ansi.GetFormattedText(Items[itemIndex], NerdFont);
+                string text = Items[itemIndex].DisplayName;
 
                 if (itemIndex == SelectedIndex)
                     Console.Write($" {orange}{bold}➤{reset} {text.PadRight(Width - textIndent)}{reset}");
