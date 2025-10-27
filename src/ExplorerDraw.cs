@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 
 namespace MshExplorer;
 
@@ -88,7 +89,12 @@ class ExplorerDraw
     
     public static string Header(string path)
     {
-        string[] splits = path.Split('/');
+        char separator = '/';
+        
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            separator = '\\';
+
+        string[] splits = path.Split(separator);
         string header = string.Join($" {bold}{orange}\x1b[0m {green}{bold}", splits);
         header = $"{header}{reset}";
 
