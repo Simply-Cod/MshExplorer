@@ -1,6 +1,7 @@
 ﻿// unicode for File 🗎
 // unicode for folder 🖿 🗁 🗀
 // unicode for info 🛈
+// ↵
 
 namespace MshExplorer;
 
@@ -16,6 +17,7 @@ class Program
         bool dirChange = false;
 
         string currentPath = Directory.GetCurrentDirectory();
+        string home = currentPath;
         string ExceptionMessage = string.Empty;
         string header = string.Empty;
 
@@ -37,6 +39,7 @@ class Program
         UserHandler userSettings = new();
         userSettings.ReadConfigs();
 
+        PathBar pathBar = new();
         CommandLine commandLine = new();
         ListWindow listWindow = new(width: 40, directoryItems);
         FloatingWindow floatingWin = new(45, 15);
@@ -62,11 +65,11 @@ class Program
             if (updateFullWindow)
             {
                 Util.Clear();
-                ExplorerDraw.Header(currentPath);
+                //ExplorerDraw.Header(currentPath);
+                pathBar.Draw(currentPath);
                 listWindow.DrawBorder();
                 listWindow.DrawList();
-                statusBar.TotalItems = directoryItems.Count;
-                statusBar.SelectedIndex = listWindow.SelectedIndex;
+                statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                 statusBar.Draw();
 
                 if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
@@ -81,12 +84,12 @@ class Program
                 Util.Clear();
                 directoryItems.Clear();
                 directoryItems = ExplorerItem.GetDirItems(currentPath, ref statusBar.ErrorMessage);
-                ExplorerDraw.Header(currentPath);
+                //ExplorerDraw.Header(currentPath);
+                pathBar.Draw(currentPath);
                 listWindow.SetItems(directoryItems);
                 listWindow.DrawBorder();
                 listWindow.DrawList();
-                statusBar.TotalItems = listWindow.Items.Count;
-                statusBar.SelectedIndex = listWindow.SelectedIndex;
+                statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                 statusBar.Draw();
 
                 if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
@@ -130,14 +133,12 @@ class Program
                     break;
                 case 'j':
                     listWindow.ScrollDown();
-                    statusBar.TotalItems = listWindow.Items.Count;
-                    statusBar.SelectedIndex = listWindow.SelectedIndex;
+                    statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                     statusBar.Draw();
                     break;
                 case 'k':
                     listWindow.ScrollUp();
-                    statusBar.TotalItems = listWindow.Items.Count;
-                    statusBar.SelectedIndex = listWindow.SelectedIndex;
+                    statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                     statusBar.Draw();
                     break;
                 case 'h':
@@ -168,13 +169,27 @@ class Program
                 case 'd':
                     if (directoryItems.Count > 0)
                     {
-                        Util.RemoveItem(listWindow.Items[listWindow.SelectedIndex], ref ExceptionMessage);
-                        dirChange = true;
+                        if (pathBar.WriteAccess)
+                        {
+                            Util.RemoveItem(listWindow.Items[listWindow.SelectedIndex], ref ExceptionMessage);
+                            dirChange = true;
+                        }
+                        else
+                        {
+                            ExceptionMessage = "You do not have access to files in this directory.";
+                        }
                     }
                     break;
                 case 'y':
-                    statusBar.ClipboardItem = listWindow.Items[listWindow.SelectedIndex];
-                    statusBar.Draw();
+                    if (pathBar.WriteAccess)
+                    {
+                        statusBar.ClipboardItem = listWindow.Items[listWindow.SelectedIndex];
+                        statusBar.Draw();
+                    }
+                    else
+                    {
+                        ExceptionMessage = "You do not have access to files in this directory";
+                    }
                     break;
                 case 'p':
                     if (statusBar.ClipboardItem.Type == ExplorerType.FILE)
@@ -250,15 +265,13 @@ class Program
             {
                 case ConsoleKey.UpArrow:
                     listWindow.ScrollUp();
-                    statusBar.TotalItems = listWindow.Items.Count;
-                    statusBar.SelectedIndex = listWindow.SelectedIndex;
+                    statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                     statusBar.Draw();
 
                     break;
                 case ConsoleKey.DownArrow:
                     listWindow.ScrollUp();
-                    statusBar.TotalItems = listWindow.Items.Count;
-                    statusBar.SelectedIndex = listWindow.SelectedIndex;
+                    statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                     statusBar.Draw();
                     break;
                 case ConsoleKey.RightArrow:

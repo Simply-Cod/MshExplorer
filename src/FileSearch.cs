@@ -22,8 +22,7 @@ class FileSearch
             listWin.SelectedIndex = 0;
             listWin.TopIndex = 0;
             listWin.DrawList();
-            status.TotalItems = currentList.Count;
-            status.SelectedIndex = 0;
+            status.SetIndexAndCount(listWin.SelectedIndex, listWin.Items.Count);
             status.Draw();
             cli.DrawCommandLine();
             while (true)
@@ -57,8 +56,7 @@ class FileSearch
                 listWin.TopIndex = 0;
                 listWin.SetItems(searchList);
                 listWin.DrawList();
-                status.TotalItems = searchList.Count;
-                status.SelectedIndex = 0;
+                status.SetIndexAndCount(listWin.SelectedIndex, listWin.Items.Count);
                 status.Draw();
             }
 

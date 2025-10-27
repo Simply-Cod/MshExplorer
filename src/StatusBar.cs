@@ -26,6 +26,19 @@ class StatusBar
         StatusBarText = string.Empty;
         Editor = string.Empty;
     }
+    public void SetIndexAndCount(int index, int count)
+    {
+        if (count == 0)
+        {
+            SelectedIndex = 0;
+            TotalItems = 0;
+        }
+        else
+        {
+            SelectedIndex = index + 1;
+            TotalItems = count;
+        }
+    }
 
     public void Draw()
     {
