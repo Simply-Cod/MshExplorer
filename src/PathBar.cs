@@ -33,7 +33,7 @@ class PathBar
             dirs.AddRange(splits.TakeLast(3));
         }
         
-        string header = string.Join($" {bold}{orange}\x1b[0m {green}{bold}", dirs);
+        string header = string.Join($" {bold}{orange}›\x1b[0m {green}{bold}", dirs);
         if (!WriteAccess)
             header = $"{header}{reset} \uD83D\uDD12";
         else
