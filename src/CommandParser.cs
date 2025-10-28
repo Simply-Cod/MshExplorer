@@ -6,8 +6,7 @@ public enum CommandType
     NONE,
     QUIT,
     HOME,
-    SET_EDITOR,
-    SET_NERDFONT,
+    CONFIG,
 }
 
 
@@ -16,9 +15,8 @@ class CommandParser
     private static readonly Dictionary<string,CommandType> _commands = new()
     {
         ["quit"] = CommandType.QUIT,
-        ["set editor"] = CommandType.SET_EDITOR,
-        ["set nerdfont"] = CommandType.SET_NERDFONT,
         ["home"] = CommandType.HOME,
+        ["config"] = CommandType.CONFIG,
     };
     
     public static (CommandType type, string val) Parse(string input)

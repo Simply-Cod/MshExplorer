@@ -3,8 +3,6 @@ namespace MshExplorer;
 
 public class Util
 {
-    const string reset = "\x1b[0m";
-    const string bold = "\x1b[1m";
 
     public static bool IsReadableDir(string path, ref string errMessage)
     {

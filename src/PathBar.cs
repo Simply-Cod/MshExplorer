@@ -4,14 +4,9 @@ namespace MshExplorer;
 
 class PathBar
 {
-    const string deleteLine = "\e[2K";
-    const string reset = "\e[0m";
-    const string bold = "\e[1m";
-    const string green = "\e[38;2;129;178;154m";
-    const string orange = "\e[38;2;224;122;95m";
-
     public bool WriteAccess;
     public bool NerdFont;
+    public PathStyler Style = new();
 
     public void Draw(string path)
     {
@@ -26,7 +21,7 @@ class PathBar
 
         if (splits.Length > 3)
         {
-            dirs.Add($"{green}{bold}…{reset}");
+            dirs.Add($"{Style.TextStyle}…{Style.Reset}");
             dirs.AddRange(splits.TakeLast(3));
         }
         else
@@ -34,16 +29,16 @@ class PathBar
             dirs.AddRange(splits.TakeLast(3));
         }
         
-        string header = string.Join($" {bold}{orange}›\x1b[0m {green}{bold}", dirs);
+        string header = string.Join($" {Style.DividerStyle}›\x1b[0m {Style.TextStyle}", dirs);
         if (!WriteAccess)
-            header = $"{header}{reset} \uD83D\uDD12";
+            header = $"{header}{Style.Reset} \uD83D\uDD12";
         else
-            header = $"{header}{reset}";
+            header = $"{header}{Style.Reset}";
 
         
         (int, int) cursorPos = Console.GetCursorPosition();
         Console.SetCursorPosition(0, 5);
-        Console.Write(deleteLine);
+        Console.Write(Ansi.deleteLine);
         Console.Write("\e[0G"); // Move cursor to column 0
         Console.Write(header);
 
@@ -68,6 +63,12 @@ class PathBar
     public void UpdateConfigs(UserConfigs configs)
     {
         NerdFont = configs.NerdFont;
+        Style.Active = configs.PathStyle;
+
+        if (Style.Active)
+            Style.Activate();
+        else
+            Style.Deactivate();
     }
 
 }

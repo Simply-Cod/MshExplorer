@@ -223,6 +223,9 @@ class Program
                 // Command line input ------------------------------------------------------
                 case ':':
                     // Todo: Add A Command Page and a tooltip letting users know about commands
+                    if (!floatingWin.HideWindow && floatingWin.ScreenSizeBigEnough)
+                        floatingWin.DrawQuickHelp(TextStore.CommandHeader, TextStore.CommandText);
+
                     string command = commandLine.GetString();
                     if (!string.IsNullOrEmpty(command))
                     {
@@ -240,21 +243,20 @@ class Program
                                 currentPath = homePath;
                                 dirChange = true;
                                 break;
-                            case CommandType.SET_EDITOR:
-                                userSettings.SetEditor(value);
-                                statusBar.Editor = userSettings.GetEditorStyle();
-                                dirChange = true;
-                                configChange = true;
-                                break;
-
-                            case CommandType.SET_NERDFONT:
-                                userSettings.SetNerdFont(value);
+                            
+                            case CommandType.CONFIG:
+                                floatingWin.ConfigWindow(userSettings.Configs);
+                                listWindow.Style.Active = userSettings.Configs.ListStyle;
+                                pathBar.Style.Active = userSettings.Configs.PathStyle;
+                                floatingWin.Style.Active = userSettings.Configs.HelpStyle;
                                 dirChange = true;
                                 configChange = true;
                                 break;
 
 
                         }
+                        if (configChange)
+                            userSettings.Update(listWindow.Style, pathBar.Style, floatingWin.Style);
                     }
                     // ------------------------------------------------------------------------
 
@@ -320,7 +322,6 @@ class Program
                     statusBar.Notify = false;
                     statusBar.Draw();
                     break;
-
             }
 
         }

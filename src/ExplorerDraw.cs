@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 
 namespace MshExplorer;
 
@@ -26,19 +25,7 @@ class ExplorerDraw
     const string eraseLine = "\e[2K";
 
 
-    public static List<string> GetDisplayList(List<ExplorerItem> items)
-    {
-        List<string> displayList = new();
-        foreach (var item in items)
-        {
-            if (item.Type == ExplorerType.FILE)
-                displayList.Add($"\x1b[38;5;11m🗎 {item.DisplayName}{reset}");
-            else
-                displayList.Add($"\x1b[38;5;105m{bold}🗀 {item.DisplayName}{reset}");
-        }
 
-        return displayList;
-    }
 
 
 

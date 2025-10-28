@@ -3,14 +3,6 @@ namespace MshExplorer;
 
 class StatusBar
 {
-    const string red = "\e[38;2;186;61;52m";
-    const string green = "\e[38;2;129;178;154m";
-    const string bgDark = "\e[48;2;31;43;61m";
-    const string eraseLine = "\e[2K";
-    const string bold = "\e[1m";
-    const string reset = "\e[0m";
-    
-
     public string ErrorMessage;
     private string StatusBarText;
     public ExplorerItem ClipboardItem;
@@ -52,20 +44,20 @@ class StatusBar
             StatusBarText = $"{StatusBarText} | {Ansi.GetFormattedEditor(Editor, NerdFont)}";
 
 
-        Console.Write(eraseLine);
+        Console.Write(Ansi.eraseLine);
 
         if (Notify)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
-                StatusBarText = $"{StatusBarText}{bgDark} | {red}{ErrorMessage}{reset}";
+                StatusBarText = $"{StatusBarText}{Ansi.bgDark} | {Ansi.red}{ErrorMessage}{Ansi.reset}";
         }
         else
         {
             if (ClipboardItem.Type != ExplorerType.NONE)
-                StatusBarText = $"{StatusBarText}{bgDark} | {Ansi.GetFormattedText(ClipboardItem, NerdFont)}";
+                StatusBarText = $"{StatusBarText}{Ansi.bgDark} | {Ansi.GetFormattedText(ClipboardItem, NerdFont)}";
         }
 
-        Console.Write($"{bgDark} {StatusBarText}{bgDark}\x1b[K{reset}");
+        Console.Write($"{Ansi.bgDark} {StatusBarText}{Ansi.bgDark}\x1b[K{Ansi.reset}");
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 

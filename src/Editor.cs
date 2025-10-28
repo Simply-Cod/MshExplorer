@@ -8,6 +8,8 @@ class Editor
         "nano",
         "nvim",
         "vim",
+        "emacs",
+        "pico",
     ];
     public static readonly string[] guiEditors = [
         "code",

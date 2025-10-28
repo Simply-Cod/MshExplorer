@@ -5,12 +5,6 @@ namespace MshExplorer;
 
 class ListWindow
 {
-
-    const string reset = "\e[0m";
-    const string bold = "\e[1m";
-    const string orange = "\e[38;2;224;122;95m";
-    const string darkBlue = "\e[38;2;61;64;91m";
-
     private int ScrollOffset;
 
     public const int StartX = 2;
@@ -20,6 +14,8 @@ class ListWindow
     public int SelectedIndex;
     public int TopIndex;
     public List<ExplorerItem> Items;
+
+    public ListStyler Style;
 
     public bool NerdFont;
 
@@ -33,14 +29,15 @@ class ListWindow
         ScrollOffset = 0;
         Items = items;
         NerdFont = false;
+        Style = new();
     }
 
     public void DrawBorder()
     {
         StringBuilder sb = new();
-        string top = $"{darkBlue}╭{new string('─', Width - 1)}╮\n";
+        string top = $"{Style.Border}╭{new string('─', Width - 1)}╮\n";
         string middle = $"│{new string(' ', Width - 1)}│\n";
-        string bottom = $"╰{new string('─', Width - 1)}╯{reset}\n";
+        string bottom = $"╰{new string('─', Width - 1)}╯{Style.Reset}\n";
 
         (int, int) cursorPos = Console.GetCursorPosition();
 
@@ -129,11 +126,19 @@ class ListWindow
                 //string text = Ansi.GetFormattedText(Items[itemIndex], NerdFont);
                 
                 string text = string.Empty;
-               if (Items[itemIndex].Type == ExplorerType.FILE)
-                    text = $" {Items[itemIndex].DisplayName}";
-                else
-                    text = $" {Items[itemIndex].DisplayName}/";
 
+                if (Style.Active)
+                {
+                    text = $" {Ansi.GetFormattedText(Items[itemIndex], NerdFont)}";
+                }
+                else
+                {
+                    if (Items[itemIndex].Type == ExplorerType.FILE)
+                        text = $" {Items[itemIndex].DisplayName}";
+                    else
+                        text = $" {Items[itemIndex].DisplayName}/";
+                }
+                
                 // StringBuilder ------- 
 
               //  StringBuilder sb = new();
@@ -143,11 +148,10 @@ class ListWindow
                // else
                 //    sb.Append(d).Append(Items[itemIndex].DisplayName).Append(reset); 
 
-
                 //-----------------------➤
 
                 if (itemIndex == SelectedIndex)
-                    Console.Write($" {orange}{bold}>{reset} {text.PadRight(Width - textIndent)}{reset}");
+                    Console.Write($" {Style.Cursor}>{Style.Reset} {text.PadRight(Width - textIndent)}{Style.Reset}");
                 else
                     Console.Write($"   {text.PadRight(Width - textIndent)}");
 
@@ -171,6 +175,12 @@ class ListWindow
     public void UpdateConfigs(UserConfigs configs)
     {
         NerdFont = configs.NerdFont;
+        Style.Active = configs.ListStyle;
+
+        if (Style.Active)
+            Style.Activate();
+        else
+            Style.Deactivate();
     }
 
 

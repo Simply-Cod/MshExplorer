@@ -80,6 +80,8 @@ class UserHandler
             "nano",
             "notepad",
             "code",
+            "emacs",
+            "pico",
             "null"
         ];
 
@@ -111,6 +113,15 @@ class UserHandler
         }
     }
 
+    public void Update(ListStyler listS, PathStyler pathS, HelpStyler helpS)
+    {
+        Configs.ListStyle = listS.Active;
+        Configs.PathStyle = pathS.Active;
+        Configs.HelpStyle = helpS.Active;
+
+        WriteConfigs();
+    }
+
 
 }
 
@@ -118,6 +129,9 @@ class UserConfigs
 {
     public string Editor { get; set; } = string.Empty;
     public bool NerdFont { get; set; } = false;
+    public bool ListStyle {get; set;} = false;
+    public bool PathStyle {get; set;} = false;
+    public bool HelpStyle {get ; set;} = false;
 }
 
 
