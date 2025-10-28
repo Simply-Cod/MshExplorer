@@ -126,17 +126,24 @@ class ListWindow
                 //string text = Ansi.GetFormattedText(Items[itemIndex], NerdFont);
                 
                 string text = string.Empty;
+                ExplorerItem temp = new(
+                        Items[itemIndex].DisplayName, 
+                        Items[itemIndex].Path, 
+                        Items[itemIndex].Type);
+                int maxLength = 30;
+                temp.DisplayName = Ansi.TruncateString(temp.DisplayName, maxLength);
+                 
 
                 if (Style.Active)
                 {
-                    text = $" {Ansi.GetFormattedText(Items[itemIndex], NerdFont)}";
+                    text = $" {Ansi.GetFormattedText(temp, NerdFont)}";
                 }
                 else
                 {
                     if (Items[itemIndex].Type == ExplorerType.FILE)
-                        text = $" {Items[itemIndex].DisplayName}";
+                        text = $" {temp.DisplayName}";
                     else
-                        text = $" {Items[itemIndex].DisplayName}/";
+                        text = $" {temp.DisplayName}/";
                 }
                 
                 // StringBuilder ------- 

@@ -150,4 +150,12 @@ static class Ansi
 
         Console.SetCursorPosition(curPos.X, curPos.Y);
     }
+
+    public static string TruncateString(string text, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(text) || text.Length <= maxLength)
+            return text;
+
+        return text.Substring(0, maxLength - 3) + "...";
+    }
 }
