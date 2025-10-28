@@ -115,7 +115,9 @@ class ListWindow
         (int, int) cursorPos = Console.GetCursorPosition();
         int indent = 2;
         int textIndent = 5;
+        
 
+        
         for (int i = 0; i < Height - 1; i++)
         {
             int itemIndex = ScrollOffset + i;
@@ -123,12 +125,29 @@ class ListWindow
 
             if (itemIndex < Items.Count)
             {
-                //Issue: Ansi.GetFormattedText Slows down linux terminal Alot
+                //Issue: Ansi.GetFormattedText Slows down linux terminal Alot  🗎🗀
                 //string text = Ansi.GetFormattedText(Items[itemIndex], NerdFont);
-                string text = Items[itemIndex].DisplayName;
+                
+                string text = string.Empty;
+               if (Items[itemIndex].Type == ExplorerType.FILE)
+                    text = $" {Items[itemIndex].DisplayName}";
+                else
+                    text = $" {Items[itemIndex].DisplayName}/";
+
+                // StringBuilder ------- 
+
+              //  StringBuilder sb = new();
+                
+               // if (Items[itemIndex].Type == ExplorerType.FILE)
+                //    sb.Append(f).Append(Items[itemIndex].DisplayName).Append(reset); 
+               // else
+                //    sb.Append(d).Append(Items[itemIndex].DisplayName).Append(reset); 
+
+
+                //-----------------------➤
 
                 if (itemIndex == SelectedIndex)
-                    Console.Write($" {orange}{bold}➤{reset} {text.PadRight(Width - textIndent)}{reset}");
+                    Console.Write($" {orange}{bold}>{reset} {text.PadRight(Width - textIndent)}{reset}");
                 else
                     Console.Write($"   {text.PadRight(Width - textIndent)}");
 
