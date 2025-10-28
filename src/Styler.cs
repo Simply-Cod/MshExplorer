@@ -121,12 +121,19 @@ class HelpStyler
     public string Reset;
     public bool Active;
 
+    public string InfoHeader;
+    public string InfoHL;
+
+    
+
     public HelpStyler()
     {
         Border = Ansi.Border;
         Header = Ansi.Header;
         Text = Ansi.HelpText;
         Reset = Ansi.reset;
+        InfoHeader = Ansi.InfoHeader;
+        InfoHL = Ansi.InfoHighL;
         Active = true;
     }
 
@@ -136,6 +143,8 @@ class HelpStyler
         Header = Ansi.Header;
         Text = Ansi.HelpText;
         Reset = Ansi.reset;
+        InfoHeader = Ansi.InfoHeader;
+        InfoHL = Ansi.InfoHighL;
         Active = true;
     }
     public void Deactivate()
@@ -144,6 +153,8 @@ class HelpStyler
         Header = string.Empty;
         Text = string.Empty;
         Reset = string.Empty;
+        InfoHeader = string.Empty;
+        InfoHL = string.Empty;
         Active = false;
     }
     public void SetStyle(string value)

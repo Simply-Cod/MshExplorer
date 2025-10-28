@@ -18,6 +18,8 @@ static class Ansi
     public const string mellow = "\e[38;2;154;151;132m";
     public const string yellow = "\x1b[38;5;11m";
 
+
+
     public const string vimColor = "\e[38;2;90;157;82m";
     public const string nanoColor = "\e[38;2;117;0;204m";
     public const string vscColor = "\e[38;2;51;128;203m";
@@ -33,6 +35,8 @@ static class Ansi
 
     // Floating Window
     public static string HelpText = mellow;
+    public static string InfoHeader = bold + yellow;
+    public static string InfoHighL = yellow;
 
     // CommandLine
     public static string ToolTip = blue;
@@ -51,7 +55,13 @@ static class Ansi
 
     // File & Directory Colors
     public static string dirColor = "\x1b[38;5;105m";
-
+    public static string cFileColor = "\e[38;2;98;149;203m";
+    public static string csharpFileColor = "\e[38;2;153;107;212m";
+    public static string gitColor = "\e[38;2;242;113;86m";
+    public static string srcColor = "\e[38;2;117;60;8m";
+    public static string incColor = "\e[38;2;140;205;247m";
+    public static string makeColor = "\e[38;2;164;6;182m";
+    
 
 
     public static readonly Dictionary<string, string> NerdEditors = new Dictionary<string, string>
@@ -99,18 +109,36 @@ static class Ansi
     private static readonly Dictionary<string, (string nerd, string uni, string color)> _fileMap =
          new(StringComparer.OrdinalIgnoreCase)
          {
-             [".cs"] = ("", "🗎", "\x1b[38;5;11m"),   // Yellow
-             [".c"] = ("", "🗎", "\x1b[38;5;208m"),  // Orange
-             [".cpp"] = ("", "🗎", "\x1b[38;5;33m"),  // Blue
-             [".txt"] = ("", "🗎", "\x1b[33m"),       // Yellow
+             [".cs"] = ("", "🗎", csharpFileColor),   
+             [".c"] = ("", "🗎", cFileColor),   
+             [".h"] = ("󰜕", "🗎", cFileColor),
+             [".cpp"] = ("", "🗎", cFileColor),  
+             [".txt"] = ("", "🗎", "\x1b[33m"),
          };
+    private static readonly Dictionary<string, (string nerd, string uni, string color)> _dirMap =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            [".git"] = ("", "🗀", gitColor),
+            ["src"] = ("", "🗀", srcColor),
+            ["include"] = ("", "🗀", incColor),
+        };
 
     public static string GetFormattedText(ExplorerItem item, bool hasNerdFont)
     {
         if (item.Type == ExplorerType.DIRECTORY)
         {
-            var icon = hasNerdFont ? "" : "🗀";
-            return $"{dirColor}{bold}{icon} {item.DisplayName}{reset}";
+            if (_dirMap.TryGetValue(item.DisplayName, out var dir))
+            {
+                var icon = hasNerdFont ? dir.nerd : dir.uni;
+                return $"{dir.color}{bold}{icon} {item.DisplayName}{reset}";
+
+            }
+            else
+            {
+                var icon = hasNerdFont ? "" : "🗀";
+                return $"{dirColor}{bold}{icon} {item.DisplayName}{reset}";
+
+            }
         }
 
         string err = string.Empty;

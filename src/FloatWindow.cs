@@ -3,10 +3,15 @@ using System.Text;
 
 namespace MshExplorer;
 
+enum FloatWindowType
+{
+    HELP,
+    INFO,
+}
 class FloatingWindow
 {
     private const int RightPadding = 5;
-    private const int TopPadding = 5;
+    private const int TopPadding = 6;
     private const int ListWindowRequiredWidth = 50;
 
     public bool ScreenSizeBigEnough;
@@ -259,5 +264,86 @@ class FloatingWindow
 
     }
 
+    public void DrawInfo(ExplorerItem current)
+    {
+        DrawBorder();
+        (int X, int Y) curPos = Console.GetCursorPosition();
+        int textStartX = StartX + 2;
+        int textStartY = StartY + 2;
+
+        Console.SetCursorPosition(StartX + 5, StartY);
+        Console.Write($"{Style.Header} Info {Style.Reset}");
+
+        string header = $"{Ansi.GetFormattedText(current, NerdFont)}"; 
+
+        if (current.Type == ExplorerType.FILE)
+        {
+            if (!Util.CheckFileAccess(current.Path))
+            {
+                if (NerdFont)
+                    header = $"{Ansi.red}{Ansi.reset} {header}";
+                else
+                    header = $"\uD83D\uDD12 {header}";
+            }
+        }
+        else if (current.Type == ExplorerType.DIRECTORY)
+        {
+            if (!Util.CheckWriteAccess(current.Path))
+            {
+                if (NerdFont)
+                    header = $"{Ansi.red}{Ansi.reset} {header}";
+                else
+                    header = $"\uD83D\uDD12 {header}";
+            }
+            
+        }
+
+        Console.SetCursorPosition(textStartX + 3, textStartY);
+        Console.Write(header);
+
+
+        if (current.Type == ExplorerType.DIRECTORY)
+        {
+            try
+            {
+                DirectoryInfo dir = new(current.Path);
+                Console.SetCursorPosition(textStartX, textStartY + 1);
+                Console.Write($"{Style.InfoHL}Creation Time:{Style.Reset}        {Style.Text}{dir.CreationTime}{Style.Reset}");
+                Console.SetCursorPosition(textStartX, textStartY + 2);
+                Console.Write($"{Style.InfoHL}Last Access Time:{Style.Reset}     {Style.Text}{dir.LastAccessTime}{Style.Reset}");
+                Console.SetCursorPosition(textStartX, textStartY + 3);
+                Console.Write($"{Style.InfoHL}Sub Directories:{Style.Reset}      {Style.Text}{dir.GetDirectories().Length}{Style.Reset}");
+                Console.SetCursorPosition(textStartX, textStartY + 4);
+                Console.Write($"{Style.InfoHL}Number of Files:{Style.Reset}      {Style.Text}{dir.GetFiles().Length}{Style.Reset}");
+
+            }
+            catch {}
+        }
+        else if (current.Type == ExplorerType.FILE)
+        {
+            try
+            {
+                FileInfo fil = new (current.Path);
+                Console.SetCursorPosition(textStartX, textStartY + 1);
+                string size = string.Empty;
+                if (fil.Length > 1024)
+                    size = $"{((double)fil.Length / 1024.0)} KB";
+                else 
+                    size = $"{fil.Length} bytes";
+                Console.Write($"{Style.InfoHL}Size:{Style.Reset}                {Style.Text}{size}{Style.Reset}");
+                Console.SetCursorPosition(textStartX, textStartY + 2);
+                Console.Write($"{Style.InfoHL}Creation Time:{Style.Reset}       {Style.Text}{fil.CreationTime}{Style.Reset}");
+                Console.SetCursorPosition(textStartX, textStartY + 3);
+                Console.Write($"{Style.InfoHL}Last Write Time:{Style.Reset}     {Style.Text}{fil.LastWriteTime}{Style.Reset}");
+                Console.SetCursorPosition(textStartX, textStartY + 4);
+                Console.Write($"{Style.InfoHL}Extension:{Style.Reset}           {Style.Text}{fil.Extension}{Style.Reset}");
+                
+                
+
+            }
+            catch {}
+        }
+
+    }
 
 }

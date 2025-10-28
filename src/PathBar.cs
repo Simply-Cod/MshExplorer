@@ -31,7 +31,7 @@ class PathBar
         
         string header = string.Join($" {Style.DividerStyle}›\x1b[0m {Style.TextStyle}", dirs);
         if (!WriteAccess)
-            header = $"{header}{Style.Reset} \uD83D\uDD12";
+            header = NerdFont ? $"{header}{Style.Reset} {Ansi.red}{Ansi.reset}" : $"{header}{Style.Reset} \uD83D\uDD12";
         else
             header = $"{header}{Style.Reset}";
 

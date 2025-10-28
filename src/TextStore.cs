@@ -15,6 +15,7 @@ static class TextStore
             "Explorer CommandLine        :",
             "Toggle floating Window      ?",
             "Search Index                /",
+            "Toggle Info/Quick help      !",
             "Remove Status Message       Backspace",
             "Quit                        q",
         ];

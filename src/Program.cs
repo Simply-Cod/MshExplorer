@@ -24,7 +24,7 @@ class Program
 
         ConsoleKeyInfo key;
         Console.Write(hideCursor);
-        Console.Write("\e[?1049h"); // Swap to alternative screen buffer so the it stops redrawing
+        Console.Write("\e[?1049h"); // Swapping to alternative buffer (might help the gnome terminal)
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Console.Title = "Msh Explorer";
         Console.CancelKeyPress += (s, e) =>
@@ -45,8 +45,10 @@ class Program
         PathBar pathBar = new();
         CommandLine commandLine = new();
         ListWindow listWindow = new(width: 40, directoryItems);
-        FloatingWindow floatingWin = new(45, 15);
+        FloatingWindow floatingWin = new(width:50, height:15); // Width normal: 45
         StatusBar statusBar = new();
+
+        FloatWindowType floatType = FloatWindowType.HELP;
 
 
         // Main Loop
@@ -60,7 +62,25 @@ class Program
                 listWindow.SetHeight();
                 updateFullWindow = true;
                 dirChange = true;
+                Util.Clear();
             }
+
+            if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
+            {
+                switch (floatType)
+                {
+                    case FloatWindowType.HELP:
+                        if (dirChange || updateFullWindow)
+                            floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
+                        break;
+                    case FloatWindowType.INFO:
+                        if(listWindow.Items.Count > 0)
+                        floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
+                        break;
+                }
+
+            }
+
             if (configChange)
             {
                 pathBar.UpdateConfigs(userSettings.Configs);
@@ -74,15 +94,11 @@ class Program
             // -------------------------------------------------------
             if (updateFullWindow)
             {
-                Util.Clear();
                 pathBar.Draw(currentPath);
                 listWindow.DrawBorder();
                 listWindow.DrawList();
                 statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                 statusBar.Draw();
-
-                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
-                    floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
 
                 updateFullWindow = false;
             }
@@ -90,7 +106,6 @@ class Program
 
             if (dirChange)
             {
-                Util.Clear();
                 directoryItems.Clear();
                 directoryItems = ExplorerItem.GetDirItems(currentPath, ref statusBar.ErrorMessage);
                 pathBar.Draw(currentPath);
@@ -100,12 +115,15 @@ class Program
                 statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                 statusBar.Draw();
 
-                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
-                    floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
+
+            if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow && floatType == FloatWindowType.INFO)
+            {
+                if (listWindow.Items.Count > 0)
+                    floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
+            }
 
                 dirChange = false;
             }
-
             // Exceptions
             // ------------------------------------------------------
             // User setings
@@ -218,11 +236,17 @@ class Program
                         statusBar.ClearClipboardItem();
                         dirChange = true;
                     }
+                    break;
 
+                case '!':
+                    if (floatType == FloatWindowType.HELP)
+                        floatType = FloatWindowType.INFO;
+                    else
+                        floatType = FloatWindowType.HELP;
+                    updateFullWindow = true;
                     break;
                 // Command line input ------------------------------------------------------
                 case ':':
-                    // Todo: Add A Command Page and a tooltip letting users know about commands
                     if (!floatingWin.HideWindow && floatingWin.ScreenSizeBigEnough)
                         floatingWin.DrawQuickHelp(TextStore.CommandHeader, TextStore.CommandText);
 
@@ -243,13 +267,13 @@ class Program
                                 currentPath = homePath;
                                 dirChange = true;
                                 break;
-                            
+
                             case CommandType.CONFIG:
                                 floatingWin.ConfigWindow(userSettings.Configs);
                                 listWindow.Style.Active = userSettings.Configs.ListStyle;
                                 pathBar.Style.Active = userSettings.Configs.PathStyle;
                                 floatingWin.Style.Active = userSettings.Configs.HelpStyle;
-                                dirChange = true;
+                                updateFullWindow = true;
                                 configChange = true;
                                 break;
 

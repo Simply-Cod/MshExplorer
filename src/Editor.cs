@@ -99,6 +99,7 @@ class Editor
                 process.WaitForExit();
 
             Console.Write("\e[?25l");
+            Util.Clear();
         }
         catch
         {

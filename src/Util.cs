@@ -250,4 +250,35 @@ public class Util
         Console.Write("\e[J");
     }
 
+
+
+    public static bool CheckFileAccess(string filePath)
+    {
+            try
+            {
+                using (FileStream fs = new(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
+                {
+                    return true;
+                }
+            }
+            catch (UnauthorizedAccessException) {return false;}
+            catch (Exception) {return false;}
+    }
+
+    public static bool CheckWriteAccess(string path)
+    {
+        try
+        {
+            string tempFile = Path.Combine(path, Guid.NewGuid().ToString() + ".tmp");
+
+            using (FileStream fs = File.Create(tempFile, 1, FileOptions.DeleteOnClose))
+            {
+            }
+            return true;
+        }
+        catch (UnauthorizedAccessException){ return false;}
+        catch (Exception) {return false;}
+    }
+
+
 }

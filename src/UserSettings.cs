@@ -128,10 +128,10 @@ class UserHandler
 class UserConfigs
 {
     public string Editor { get; set; } = string.Empty;
-    public bool NerdFont { get; set; } = false;
-    public bool ListStyle {get; set;} = false;
-    public bool PathStyle {get; set;} = false;
-    public bool HelpStyle {get ; set;} = false;
+    public bool NerdFont { get; set; } = true;
+    public bool ListStyle {get; set;} = true;
+    public bool PathStyle {get; set;} = true;
+    public bool HelpStyle {get ; set;} = true;
 }
 
 
