@@ -240,7 +240,6 @@ class FloatingWindow
                     }
                     break;
                 case ConsoleKey.Enter:
-                    userConfigs = configs;
                     isConfiging = false;
                     break;
 
@@ -261,11 +260,12 @@ class FloatingWindow
         (int X, int Y) curPos = Console.GetCursorPosition();
         int textStartX = StartX + 2;
         int textStartY = StartY + 2;
+        int maxLength = 40;
 
         Console.SetCursorPosition(StartX + 5, StartY);
         Console.Write($"{Style.Header} Info {Style.Reset}");
 
-        string header = $"{Ansi.GetFormattedText(current, NerdFont)}"; 
+        string header = $"{Ansi.GetFormattedText(current, NerdFont, maxLength)}"; 
 
         if (current.Type == ExplorerType.FILE)
         {
@@ -275,6 +275,7 @@ class FloatingWindow
                     header = $"{Ansi.red}{Ansi.reset} {header}";
                 else
                     header = $"\uD83D\uDD12 {header}";
+                
             }
         }
         else if (current.Type == ExplorerType.DIRECTORY)
@@ -328,8 +329,6 @@ class FloatingWindow
                 Console.Write($"{Style.InfoHL}Last Write Time:{Style.Reset}     {Style.Text}{fil.LastWriteTime}{Style.Reset}");
                 Console.SetCursorPosition(textStartX, textStartY + 4);
                 Console.Write($"{Style.InfoHL}Extension:{Style.Reset}           {Style.Text}{fil.Extension}{Style.Reset}");
-                
-                
 
             }
             catch {}

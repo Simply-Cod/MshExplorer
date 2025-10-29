@@ -18,7 +18,6 @@ class Program
         string currentPath = Directory.GetCurrentDirectory();
         string homePath = currentPath;
         string ExceptionMessage = string.Empty;
-        string header = string.Empty;
 
         ConsoleKeyInfo key;
         Console.Write(Ansi.hideCursor);
@@ -244,9 +243,12 @@ class Program
                 case ConsoleKey.E:
                     if (userSettings.Configs.Editor == string.Empty || userSettings.Configs.Editor == "null")
                     {
-                        string editor = commandLine.GetString();
                         commandLine.Header = " Editor ";
+                        commandLine.ToolTip = string.Empty;
+                        string editor = commandLine.GetString();
                         Editor.OpenEditor(listWindow.Items[listWindow.SelectedIndex], editor);
+                        commandLine.Header = string.Empty;
+                        commandLine.ToolTip = string.Empty;
                     }
                     else
                     {
@@ -269,6 +271,14 @@ class Program
 
                     switch (key.KeyChar)
                     {
+                        case '/': 
+                            {
+                                bool ok = FileSearch.PatternMatch(currentPath, listWindow.Items, listWindow, statusBar);
+                                if (!ok)
+                                    dirChange = true;
+                                break;
+                            }
+
                         // Command line input ------------------------------------------------------
                         case ':':
                             if (!floatingWin.HideWindow && floatingWin.ScreenSizeBigEnough)

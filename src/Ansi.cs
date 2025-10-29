@@ -64,23 +64,23 @@ static class Ansi
     public static string incColor = "\e[38;2;140;205;247m";
     public static string makeColor = "\e[38;2;164;6;182m";
 
-private static readonly Dictionary<string, (string nerd, string uni, string color)> _fileMap =
-         new(StringComparer.OrdinalIgnoreCase)
-         {
-             [".cs"] = ("", "🗎", csharpFileColor),
-             [".c"] = ("", "🗎", cFileColor),
-             [".h"] = ("󰜕", "🗎", cFileColor),
-             [".cpp"] = ("", "🗎", cFileColor),
-             [".txt"] = ("", "🗎", "\x1b[33m"),
-         };
+    private static readonly Dictionary<string, (string nerd, string uni, string color)> _fileMap =
+             new(StringComparer.OrdinalIgnoreCase)
+             {
+                 [".cs"] = ("", "🗎", csharpFileColor),
+                 [".c"] = ("", "🗎", cFileColor),
+                 [".h"] = ("󰜕", "🗎", cFileColor),
+                 [".cpp"] = ("", "🗎", cFileColor),
+                 [".txt"] = ("", "🗎", "\x1b[33m"),
+             };
 
-private static readonly Dictionary<string, (string nerd, string uni, string color)> _dirMap =
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-            [".git"] = ("", "🗀", gitColor),
-            ["src"] = ("", "🗀", srcColor),
-            ["include"] = ("", "🗀", incColor),
-        };
+    private static readonly Dictionary<string, (string nerd, string uni, string color)> _dirMap =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [".git"] = ("", "🗀", gitColor),
+                ["src"] = ("", "🗀", srcColor),
+                ["include"] = ("", "🗀", incColor),
+            };
 
     private static readonly Dictionary<string, (string nerd, string none)> _editorMap =
              new(StringComparer.OrdinalIgnoreCase)
@@ -90,8 +90,8 @@ private static readonly Dictionary<string, (string nerd, string uni, string colo
                  ["nano"] = ($"{nanoColor}{bold} nano{reset}", $"{nanoColor}{bold} nano{reset}"),
                  ["code"] = ($"{vscColor}{bold} Vs Code{reset}", $"{vscColor}{bold} Vs Code{reset}"),
                  ["notepad"] = ($"{vscColor}{bold} notepad{reset}", $"{vscColor}{bold} notepad{reset}"),
-                 ["emacs"] = ($"{emacsColor}{bold} Emacs{reset}",$"{emacsColor}{bold} Emacs{reset}"),
-                 ["pico"] = ($"{bold}{nanoColor} pico{reset}",$"{bold}{nanoColor} pico{reset}"),
+                 ["emacs"] = ($"{emacsColor}{bold} Emacs{reset}", $"{emacsColor}{bold} Emacs{reset}"),
+                 ["pico"] = ($"{bold}{nanoColor} pico{reset}", $"{bold}{nanoColor} pico{reset}"),
 
              };
 
@@ -100,7 +100,7 @@ private static readonly Dictionary<string, (string nerd, string uni, string colo
         if (string.IsNullOrWhiteSpace(editor) || editor == "null")
             return string.Empty;
 
-        if(_editorMap.TryGetValue(editor, out var ed))
+        if (_editorMap.TryGetValue(editor, out var ed))
         {
             return nerdFont ? ed.nerd : ed.none;
         }
@@ -154,6 +154,55 @@ private static readonly Dictionary<string, (string nerd, string uni, string colo
         }
     }
 
+    // Overload which takes a max length to to displayname
+
+    public static string GetFormattedText(ExplorerItem item, bool hasNerdFont, int maxLength)
+    {
+        string formattedText = TruncateString(item.DisplayName, maxLength);
+
+        if (item.Type == ExplorerType.DIRECTORY)
+        {
+            if (_dirMap.TryGetValue(item.DisplayName, out var dir))
+            {
+                var icon = hasNerdFont ? dir.nerd : dir.uni;
+                return $"{dir.color}{bold}{icon} {formattedText}{reset}";
+
+            }
+            else
+            {
+                var icon = hasNerdFont ? "" : "🗀";
+                return $"{dirColor}{bold}{icon} {formattedText}{reset}";
+
+            }
+        }
+
+        string err = string.Empty;
+        string ext = Path.GetExtension(item.Path);
+
+        try
+        {
+            if (_fileMap.TryGetValue(ext, out var fmt))
+            {
+                var icon = hasNerdFont ? fmt.nerd : fmt.uni;
+                return $"{fmt.color}{icon} {formattedText}{reset}";
+            }
+
+            if (ExplorerItem.IsBinaryFile(item.Path, 100, ref err))
+            {
+                var icon = hasNerdFont ? "" : "🗎";
+                return $"\x1b[1;36m{icon} {formattedText}{reset}";
+            }
+
+            var defaultIcon = hasNerdFont ? "" : "🗎";
+            return $"\x1b[33m{defaultIcon} {formattedText}{reset}";
+        }
+        catch (UnauthorizedAccessException)
+        {
+            var icon = hasNerdFont ? "" : "🗎";
+            return $"{red}{icon} {formattedText}{reset}";
+        }
+    }
+
 
     public static void Write(int x, int y, string text)
     {
@@ -170,6 +219,8 @@ private static readonly Dictionary<string, (string nerd, string uni, string colo
         if (string.IsNullOrWhiteSpace(text) || text.Length <= maxLength)
             return text;
 
+
         return text.Substring(0, maxLength - 3) + "...";
     }
+    
 }

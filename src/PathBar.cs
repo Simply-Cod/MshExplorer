@@ -12,7 +12,7 @@ class PathBar
     {
         List<string> dirs = new();
         char separator = '/';
-        WriteAccess = CheckWriteAccess(path);
+        WriteAccess = Util.CheckWriteAccess(path);
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             separator = '\\';
@@ -43,21 +43,6 @@ class PathBar
         Console.Write(header);
 
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-    }
-
-    private bool CheckWriteAccess(string path)
-    {
-        try
-        {
-            string tempFile = Path.Combine(path, Guid.NewGuid().ToString() + ".tmp");
-
-            using (FileStream fs = File.Create(tempFile, 1, FileOptions.DeleteOnClose))
-            {
-            }
-            return true;
-        }
-        catch (UnauthorizedAccessException){ return false;}
-        catch (Exception) {return false;}
     }
 
     public void UpdateConfigs(UserConfigs configs)

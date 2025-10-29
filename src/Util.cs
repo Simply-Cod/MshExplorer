@@ -240,9 +240,15 @@ public class Util
     public static void LogErrorMessage(string errMessage)
     {
         string logPath = "debug/error.txt";
-        errMessage = $"-- Error {DateTime.Now.ToString("G")} --\n{errMessage}\n-- End --\n\n";
-        File.AppendAllText(logPath, errMessage);
-    }
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+            errMessage = $"-- Error {DateTime.Now.ToString("G")} --\n{errMessage}\n-- End --\n\n";
+            File.AppendAllText(logPath, errMessage);
+
+        }
+        catch {}
+        }
 
     public static void Clear()
     {
@@ -254,15 +260,7 @@ public class Util
 
     public static bool CheckFileAccess(string filePath)
     {
-            try
-            {
-                using (FileStream fs = new(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
-                {
-                    return true;
-                }
-            }
-            catch (UnauthorizedAccessException) {return false;}
-            catch (Exception) {return false;}
+        return ProbeFileReadable(filePath);
     }
 
     public static bool CheckWriteAccess(string path)
@@ -276,8 +274,48 @@ public class Util
             }
             return true;
         }
-        catch (UnauthorizedAccessException){ return false;}
-        catch (Exception) {return false;}
+        catch (UnauthorizedAccessException) { return false; }
+        catch (Exception) { return false; }
+    }
+    
+    public static bool ProbeFileReadable(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+            return false;
+
+        if (!File.Exists(filePath))
+            return false;
+
+        try
+        {
+            using var fs = new FileStream(
+                filePath,
+                FileMode.Open,                 
+                FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete
+            );
+            return true;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return false;
+        }
+        catch (FileNotFoundException)
+        {
+            return false;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
     }
 
 
