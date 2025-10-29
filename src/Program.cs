@@ -54,9 +54,10 @@ class Program
         while (isRunning)
         {
 
-            if (Console.WindowHeight != prevHeight)
+            if (Console.WindowHeight != prevHeight || prevWidth != Console.WindowWidth)
             {
                 prevHeight = Console.WindowHeight;
+                prevWidth = Console.WindowWidth;
                 listWindow.SetHeight();
                 updateFullWindow = true;
                 dirChange = true;

@@ -13,6 +13,8 @@ class FloatingWindow
     private const int RightPadding = 5;
     private const int TopPadding = 6;
     private const int ListWindowRequiredWidth = 50;
+    private const int MinimumHeight = 15;
+    private const int MinimumWidth = 40;
 
     public bool ScreenSizeBigEnough;
     public bool HideWindow;
@@ -27,10 +29,10 @@ class FloatingWindow
 
     public FloatingWindow(int width, int height)
     {
-        Width = width;
+        Width = Console.WindowWidth - ListWindowRequiredWidth;
         Height = height;
 
-        StartX = Console.WindowWidth - (Width + RightPadding);
+        StartX = ListWindowRequiredWidth;
         StartY = TopPadding;
 
         HideWindow = false;
@@ -44,10 +46,13 @@ class FloatingWindow
 
     public bool CheckWindowSize()
     {
-        StartX = Console.WindowWidth - (Width + RightPadding);
+        Width = Console.WindowWidth - ListWindowRequiredWidth - RightPadding;
+        Height = Console.WindowHeight - TopPadding - 2; // 2 for statusbar 
 
-        return ListWindowRequiredWidth + (Width + RightPadding) < Console.WindowWidth &&
-            Height + TopPadding < Console.WindowHeight;
+        ScreenSizeBigEnough = Width > MinimumWidth &&
+            Height  > MinimumHeight;
+
+        return ScreenSizeBigEnough;
     }
 
 
