@@ -50,7 +50,7 @@ class FloatingWindow
         Height = Console.WindowHeight - TopPadding - 2; // 2 for statusbar 
 
         ScreenSizeBigEnough = Width > MinimumWidth &&
-            Height  > MinimumHeight;
+            Height > MinimumHeight;
 
         return ScreenSizeBigEnough;
     }
@@ -83,7 +83,7 @@ class FloatingWindow
 
 
 
-    private void DrawWindowText(string header, string[] text)
+    private void DrawWindowText(string header, string[] text, bool truncate)
     {
         (int, int) cursorPos = Console.GetCursorPosition();
         int headerIndent = 5;
@@ -98,8 +98,12 @@ class FloatingWindow
 
         for (int i = 0; i < text.Length; i++)
         {
+            string t = Ansi.ConvertTabsToSpaces(text[i]);
             Console.SetCursorPosition(x + textOffset, y + i);
-            Console.Write($"{Style.Text}{text[i]}{Style.Reset}");
+            if (truncate)
+                Console.Write($"{Style.Text}{Ansi.TruncateString(t, Width - 2)}{Style.Reset}"); // Test add truncation
+            else
+                Console.Write($"{Style.Text}{t}{Style.Reset}"); // Test add truncation
         }
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
@@ -107,7 +111,7 @@ class FloatingWindow
     public void DrawQuickHelp(string helpHeader, string[] helpText)
     {
         DrawBorder();
-        DrawWindowText(helpHeader, helpText);
+        DrawWindowText(helpHeader, helpText, truncate:false);
     }
 
 
@@ -158,7 +162,7 @@ class FloatingWindow
     {
         UserConfigs configs = new();
         configs = userConfigs;
-        
+
         string ConfigHeader = "Config";
 
 
@@ -174,17 +178,19 @@ class FloatingWindow
         int select = 0;
         ConsoleKeyInfo key;
         bool isConfiging = true;
+        string shortAnsi = $"{Ansi.reset}{Ansi.bold}{Ansi.mellow}";
         while (isConfiging)
         {
+            string e = Ansi.GetFormattedEditor(configs.Editor, configs.NerdFont);
             string[] ConfigText = [
-    $"Editor                 {Ansi.bold}[{Ansi.yellow}{Ansi.GetFormattedEditor(configs.Editor,configs.NerdFont)}{Ansi.reset}{Ansi.bold}{Ansi.mellow}]{Ansi.reset}     ",
-    $"NerdFont               {Ansi.bold}[{Ansi.yellow}{configs.NerdFont}{Ansi.reset}{Ansi.bold}{Ansi.mellow}]{Ansi.reset}   ",
-    $"List Window Style      {Ansi.bold}[{Ansi.yellow}{configs.ListStyle}{Ansi.reset}{Ansi.bold}{Ansi.mellow}]{Ansi.reset}  ",
-    $"Path Bar Style         {Ansi.bold}[{Ansi.yellow}{configs.PathStyle}{Ansi.reset}{Ansi.bold}{Ansi.mellow}]{Ansi.reset}  ",
-    $"Float Window Style     {Ansi.bold}[{Ansi.yellow}{configs.HelpStyle}{Ansi.reset}{Ansi.bold}{Ansi.mellow}]{Ansi.reset}  ",
+    $"Editor                 {Ansi.bold}[{Ansi.yellow}{e}{shortAnsi}]{Ansi.reset}     ",
+    $"NerdFont                 {Ansi.bold}[{Ansi.yellow}{configs.NerdFont}{shortAnsi}]{Ansi.reset}   ",
+    $"List Window Style        {Ansi.bold}[{Ansi.yellow}{configs.ListStyle}{shortAnsi}]{Ansi.reset}  ",
+    $"Path Bar Style           {Ansi.bold}[{Ansi.yellow}{configs.PathStyle}{shortAnsi}]{Ansi.reset}  ",
+    $"Float Window Style       {Ansi.bold}[{Ansi.yellow}{configs.HelpStyle}{shortAnsi}]{Ansi.reset}  ",
             ];
 
-            DrawWindowText(ConfigHeader, ConfigText);
+            DrawWindowText(ConfigHeader, ConfigText, truncate: false);
             Console.SetCursorPosition(configStartX, configStartY + select);
             Console.Write($"{Ansi.bold}{Ansi.orange}>{Ansi.reset}");
             key = Console.ReadKey(true);
@@ -270,7 +276,7 @@ class FloatingWindow
         Console.SetCursorPosition(StartX + 5, StartY);
         Console.Write($"{Style.Header} Info {Style.Reset}");
 
-        string header = $"{Ansi.GetFormattedText(current, NerdFont, maxLength)}"; 
+        string header = $"{Ansi.GetFormattedText(current, NerdFont, maxLength)}";
 
         if (current.Type == ExplorerType.FILE)
         {
@@ -280,7 +286,7 @@ class FloatingWindow
                     header = $"{Ansi.red}{Ansi.reset} {header}";
                 else
                     header = $"\uD83D\uDD12 {header}";
-                
+
             }
         }
         else if (current.Type == ExplorerType.DIRECTORY)
@@ -292,7 +298,7 @@ class FloatingWindow
                 else
                     header = $"\uD83D\uDD12 {header}";
             }
-            
+
         }
 
         Console.SetCursorPosition(textStartX + 3, textStartY);
@@ -314,18 +320,18 @@ class FloatingWindow
                 Console.Write($"{Style.InfoHL}Number of Files:{Style.Reset}      {Style.Text}{dir.GetFiles().Length}{Style.Reset}");
 
             }
-            catch {}
+            catch { }
         }
         else if (current.Type == ExplorerType.FILE)
         {
             try
             {
-                FileInfo fil = new (current.Path);
+                FileInfo fil = new(current.Path);
                 Console.SetCursorPosition(textStartX, textStartY + 1);
                 string size = string.Empty;
                 if (fil.Length > 1024)
                     size = $"{((double)fil.Length / 1024.0)} KB";
-                else 
+                else
                     size = $"{fil.Length} bytes";
                 Console.Write($"{Style.InfoHL}Size:{Style.Reset}                {Style.Text}{size}{Style.Reset}");
                 Console.SetCursorPosition(textStartX, textStartY + 2);
@@ -336,9 +342,66 @@ class FloatingWindow
                 Console.Write($"{Style.InfoHL}Extension:{Style.Reset}           {Style.Text}{fil.Extension}{Style.Reset}");
 
             }
-            catch {}
+            catch { }
         }
 
+    }
+
+    public void DrawPreview(ExplorerItem file)
+    {
+        int x = StartX + 2;
+        int y = StartY + 2;
+        DrawBorder();
+        string err = string.Empty;
+        if (!File.Exists(file.Path))
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write("File dont excists error");
+            return;
+        }
+        try
+        {
+
+            if (ExplorerItem.IsBinaryFile(file.Path, 500, ref err))
+            {
+                Console.SetCursorPosition(x, y);
+                Console.Write("--- Binary file ---");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write($"Error: {ex.Message}");
+
+        }
+
+
+        try
+        {
+            string header = Ansi.GetFormattedText(file, NerdFont, MinimumWidth);
+            string[] previewText = File.ReadLines(file.Path)
+                            .Take(Height - 2).ToArray();
+            DrawWindowText(header, previewText, truncate: true);
+
+            for (int i = 0; i < previewText.Length; i++)
+            {
+                Console.SetCursorPosition(x, y);
+
+            }
+
+        }
+        catch (FieldAccessException ex)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write($"Error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write($"Error: {ex.Message}");
+
+        }
     }
 
 }

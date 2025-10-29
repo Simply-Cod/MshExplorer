@@ -15,6 +15,8 @@ class Program
         bool dirChange = false;
         bool configChange = true;
 
+        bool viewingPreview = false;
+
         string currentPath = Directory.GetCurrentDirectory();
         string homePath = currentPath;
         string ExceptionMessage = string.Empty;
@@ -73,8 +75,9 @@ class Program
                             floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
                         break;
                     case FloatWindowType.INFO:
-                        if (listWindow.Items.Count > 0)
+                        if (listWindow.Items.Count > 0 && !viewingPreview)
                             floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
+                        viewingPreview = false;
                         break;
                 }
 
@@ -189,6 +192,11 @@ class Program
                         {
                             currentPath = listWindow.Items[listWindow.SelectedIndex].Path;
                             dirChange = true;
+                        }
+                        else if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.FILE)
+                        {
+                            floatingWin.DrawPreview(listWindow.Items[listWindow.SelectedIndex]);
+                            viewingPreview = true;
                         }
                     }
                     break;

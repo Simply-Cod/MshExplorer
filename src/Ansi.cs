@@ -222,5 +222,10 @@ static class Ansi
 
         return text.Substring(0, maxLength - 3) + "...";
     }
+
+    public static string ConvertTabsToSpaces(string text)
+    {
+        return text.Replace("\t", "    ");
+    }
     
 }
