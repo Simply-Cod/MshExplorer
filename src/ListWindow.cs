@@ -14,7 +14,7 @@ class ListWindow
     public int SelectedIndex;
     public int TopIndex;
     public List<ExplorerItem> Items;
-
+    private List<string> styleCacheList;
     public ListStyler Style;
 
     public bool NerdFont;
@@ -30,6 +30,7 @@ class ListWindow
         Items = items;
         NerdFont = false;
         Style = new();
+        styleCacheList = new();
     }
 
     public void DrawBorder()
@@ -61,7 +62,24 @@ class ListWindow
         Items = new(items);
         SelectedIndex = 0;
         ScrollOffset = 0;
+        SetStyleCacheList();
     }
+    // --- Test --- 
+    private void SetStyleCacheList()
+    {
+        if (Items.Count <= 0)
+            return;
+        styleCacheList = new();
+        int maxLength = 30;
+        int textIndent = 5;
+
+        foreach (var item in Items)
+        {
+            styleCacheList.Add($"{Ansi.GetFormattedText(item, NerdFont, maxLength).PadRight(Width - textIndent)}");
+        }
+
+    }
+    // --- 
     public void SetHeight()
     {
         Height = Console.WindowHeight - (StartY + 1); // + 1 Because of statusBar
@@ -111,10 +129,9 @@ class ListWindow
     {
         (int, int) cursorPos = Console.GetCursorPosition();
         int indent = 2;
-        int textIndent = 5;
-        
+        string listCursor = $"{Style.Cursor}>{Style.Reset}";
 
-        
+
         for (int i = 0; i < Height - 1; i++)
         {
             int itemIndex = ScrollOffset + i;
@@ -122,45 +139,24 @@ class ListWindow
 
             if (itemIndex < Items.Count)
             {
-                //Issue: Ansi.GetFormattedText Slows down linux terminal Alot  🗎🗀
-                //string text = Ansi.GetFormattedText(Items[itemIndex], NerdFont);
-                
                 string text = string.Empty;
-                ExplorerItem temp = new(
-                        Items[itemIndex].DisplayName, 
-                        Items[itemIndex].Path, 
-                        Items[itemIndex].Type);
-                int maxLength = 30;
-                temp.DisplayName = Ansi.TruncateString(temp.DisplayName, maxLength);
-                 
-
                 if (Style.Active)
                 {
-                    text = $" {Ansi.GetFormattedText(temp, NerdFont)}";
+                    text = styleCacheList[itemIndex];
                 }
                 else
                 {
                     if (Items[itemIndex].Type == ExplorerType.FILE)
-                        text = $" {temp.DisplayName}";
+                        text = $" {Items[itemIndex].DisplayName}";
                     else
-                        text = $" {temp.DisplayName}/";
+                        text = $" *{Items[itemIndex].DisplayName}/";
                 }
-                
-                // StringBuilder ------- 
 
-              //  StringBuilder sb = new();
-                
-               // if (Items[itemIndex].Type == ExplorerType.FILE)
-                //    sb.Append(f).Append(Items[itemIndex].DisplayName).Append(reset); 
-               // else
-                //    sb.Append(d).Append(Items[itemIndex].DisplayName).Append(reset); 
-
-                //-----------------------➤
 
                 if (itemIndex == SelectedIndex)
-                    Console.Write($" {Style.Cursor}>{Style.Reset} {text.PadRight(Width - textIndent)}{Style.Reset}");
+                    Console.Write($" {listCursor} {text}");
                 else
-                    Console.Write($"   {text.PadRight(Width - textIndent)}");
+                    Console.Write($"   {text}");
 
                 int curX = Console.CursorLeft;
                 int remaining = (StartX + Width) - curX - 1;

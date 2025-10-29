@@ -45,8 +45,8 @@ class Program
         ListWindow listWindow = new(width: 40, directoryItems);
         FloatingWindow floatingWin = new(width: 50, height: 15); // Width normal: 45
         StatusBar statusBar = new();
-
         FloatWindowType floatType = FloatWindowType.HELP;
+
 
 
         // Main Loop
@@ -83,6 +83,7 @@ class Program
             {
                 pathBar.UpdateConfigs(userSettings.Configs);
                 listWindow.UpdateConfigs(userSettings.Configs);
+                listWindow.SetItems(directoryItems);
                 floatingWin.UpdateConfigs(userSettings.Configs);
                 statusBar.UpdateConfigs(userSettings.Configs);
                 configChange = false;
@@ -181,10 +182,13 @@ class Program
                     break;
                 case ConsoleKey.RightArrow:
                 case ConsoleKey.L:
-                    if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.DIRECTORY)
+                    if (listWindow.Items.Count > 0)
                     {
-                        currentPath = listWindow.Items[listWindow.SelectedIndex].Path;
-                        dirChange = true;
+                        if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.DIRECTORY)
+                        {
+                            currentPath = listWindow.Items[listWindow.SelectedIndex].Path;
+                            dirChange = true;
+                        }
                     }
                     break;
                 case ConsoleKey.A:
@@ -271,7 +275,7 @@ class Program
 
                     switch (key.KeyChar)
                     {
-                        case '/': 
+                        case '/':
                             {
                                 bool ok = FileSearch.PatternMatch(currentPath, listWindow.Items, listWindow, statusBar);
                                 if (!ok)
@@ -316,7 +320,7 @@ class Program
 
 
                                 }
-                                
+
                                 if (configChange)
                                     userSettings.Update(listWindow.Style, pathBar.Style, floatingWin.Style);
                             }
