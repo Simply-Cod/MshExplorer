@@ -18,7 +18,6 @@ class FileSearch
 
         try
         {
-
             listWin.SelectedIndex = 0;
             listWin.TopIndex = 0;
             listWin.DrawList();

@@ -74,7 +74,7 @@ public class Util
     {
         bool dirWithContent = false;
         (int, int) cursorPos = Console.GetCursorPosition();
-        Console.SetCursorPosition(0, 0);
+        Console.SetCursorPosition(0, 1);
 
         if (item.Type == ExplorerType.DIRECTORY)
         {
@@ -91,7 +91,7 @@ public class Util
         if (dirWithContent)
         {
             string format = Ansi.GetFormattedText(item, nerdFont);
-            Console.Write($"   Remove {format} And it's Content?"); Console.SetCursorPosition(0, 1);
+            Console.Write($"   Remove {format} And it's Content?"); Console.SetCursorPosition(0, 2);
             Console.Write("    (y)Yes (n)No");
             char key = 'a';
 
@@ -104,7 +104,7 @@ public class Util
 
             if (key == 'n')
             {
-                Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 0);
+                Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 1);
                 Console.Write("\x1b[2K");
                 Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
 
@@ -146,7 +146,7 @@ public class Util
         }
 
 
-        Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 0);
+        Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 1);
         Console.Write("\x1b[2K");
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }

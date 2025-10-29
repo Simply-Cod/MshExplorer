@@ -9,8 +9,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        const string hideCursor = "\x1b[?25l";
-        const string showCursor = "\x1b[?25h";
 
         bool isRunning = true;
         bool updateFullWindow = true;
@@ -23,13 +21,14 @@ class Program
         string header = string.Empty;
 
         ConsoleKeyInfo key;
-        Console.Write(hideCursor);
-        Console.Write("\e[?1049h"); // Swapping to alternative buffer (might help the gnome terminal)
+        Console.Write(Ansi.hideCursor);
+        Console.Write(Ansi.enableAltBuffer); // Swapping to alternative buffer (might help the gnome terminal)
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Console.Title = "Msh Explorer";
         Console.CancelKeyPress += (s, e) =>
         {
-            Console.Write(showCursor);
+            Console.Write(Ansi.showCursor);
+            Console.Write(Ansi.disableAltBuffer);
             Util.Clear();
         };
         int prevHeight = Console.WindowHeight;
@@ -45,7 +44,7 @@ class Program
         PathBar pathBar = new();
         CommandLine commandLine = new();
         ListWindow listWindow = new(width: 40, directoryItems);
-        FloatingWindow floatingWin = new(width:50, height:15); // Width normal: 45
+        FloatingWindow floatingWin = new(width: 50, height: 15); // Width normal: 45
         StatusBar statusBar = new();
 
         FloatWindowType floatType = FloatWindowType.HELP;
@@ -74,8 +73,8 @@ class Program
                             floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
                         break;
                     case FloatWindowType.INFO:
-                        if(listWindow.Items.Count > 0)
-                        floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
+                        if (listWindow.Items.Count > 0)
+                            floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
                         break;
                 }
 
@@ -116,11 +115,11 @@ class Program
                 statusBar.Draw();
 
 
-            if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow && floatType == FloatWindowType.INFO)
-            {
-                if (listWindow.Items.Count > 0)
-                    floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
-            }
+                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow && floatType == FloatWindowType.INFO)
+                {
+                    if (listWindow.Items.Count > 0)
+                        floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
+                }
 
                 dirChange = false;
             }
@@ -157,35 +156,39 @@ class Program
                 Console.ReadKey(true);
             }
 
-            switch (key.KeyChar)
+            switch (key.Key)
             {
-                case 'q':
+                case ConsoleKey.Q:
                     isRunning = false;
                     break;
-                case 'j':
+                case ConsoleKey.DownArrow:
+                case ConsoleKey.J:
                     listWindow.ScrollDown();
                     statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                     statusBar.Draw();
                     break;
-                case 'k':
+                case ConsoleKey.UpArrow:
+                case ConsoleKey.K:
                     listWindow.ScrollUp();
                     statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                     statusBar.Draw();
                     break;
-                case 'h':
+                case ConsoleKey.LeftArrow:
+                case ConsoleKey.H:
                     string? tryGetPath = Path.GetDirectoryName(currentPath);
                     if (!string.IsNullOrEmpty(tryGetPath))
                         currentPath = tryGetPath;
                     dirChange = true;
                     break;
-                case 'l':
+                case ConsoleKey.RightArrow:
+                case ConsoleKey.L:
                     if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.DIRECTORY)
                     {
                         currentPath = listWindow.Items[listWindow.SelectedIndex].Path;
                         dirChange = true;
                     }
                     break;
-                case 'a':
+                case ConsoleKey.A:
                     commandLine.Header = "Add Item";
                     commandLine.ToolTip = "End name with / to create a directory";
                     string itemName = commandLine.GetString();
@@ -197,7 +200,7 @@ class Program
                     commandLine.Header = string.Empty;
                     commandLine.ToolTip = string.Empty;
                     break;
-                case 'd':
+                case ConsoleKey.D:
                     if (directoryItems.Count > 0)
                     {
                         if (pathBar.WriteAccess)
@@ -212,7 +215,7 @@ class Program
                         }
                     }
                     break;
-                case 'y':
+                case ConsoleKey.Y:
                     if (pathBar.WriteAccess)
                     {
                         statusBar.ClipboardItem = listWindow.Items[listWindow.SelectedIndex];
@@ -223,7 +226,7 @@ class Program
                         ExceptionMessage = "You do not have access to files in this directory";
                     }
                     break;
-                case 'p':
+                case ConsoleKey.P:
                     if (statusBar.ClipboardItem.Type == ExplorerType.FILE)
                     {
                         Util.PasteFile(statusBar.ClipboardItem, currentPath, ref ExceptionMessage);
@@ -238,54 +241,7 @@ class Program
                     }
                     break;
 
-                case '!':
-                    if (floatType == FloatWindowType.HELP)
-                        floatType = FloatWindowType.INFO;
-                    else
-                        floatType = FloatWindowType.HELP;
-                    updateFullWindow = true;
-                    break;
-                // Command line input ------------------------------------------------------
-                case ':':
-                    if (!floatingWin.HideWindow && floatingWin.ScreenSizeBigEnough)
-                        floatingWin.DrawQuickHelp(TextStore.CommandHeader, TextStore.CommandText);
-
-                    string command = commandLine.GetString();
-                    if (!string.IsNullOrEmpty(command))
-                    {
-                        CommandType type = 0;
-                        string value;
-                        (type, value) = CommandParser.Parse(command);
-
-                        switch (type)
-                        {
-                            case CommandType.QUIT:
-                                isRunning = false;
-                                break;
-
-                            case CommandType.HOME:
-                                currentPath = homePath;
-                                dirChange = true;
-                                break;
-
-                            case CommandType.CONFIG:
-                                floatingWin.ConfigWindow(userSettings.Configs);
-                                listWindow.Style.Active = userSettings.Configs.ListStyle;
-                                pathBar.Style.Active = userSettings.Configs.PathStyle;
-                                floatingWin.Style.Active = userSettings.Configs.HelpStyle;
-                                updateFullWindow = true;
-                                configChange = true;
-                                break;
-
-
-                        }
-                        if (configChange)
-                            userSettings.Update(listWindow.Style, pathBar.Style, floatingWin.Style);
-                    }
-                    // ------------------------------------------------------------------------
-
-                    break;
-                case 'e':
+                case ConsoleKey.E:
                     if (userSettings.Configs.Editor == string.Empty || userSettings.Configs.Editor == "null")
                     {
                         string editor = commandLine.GetString();
@@ -298,59 +254,95 @@ class Program
                     }
                     dirChange = true;
                     break;
-                case '/':
+                case ConsoleKey.Divide:
                     bool success = FileSearch.PatternMatch(currentPath, listWindow.Items, listWindow, statusBar);
                     if (!success)
                         dirChange = true;
                     break;
-                case '?':
-                    floatingWin.HideWindow = !floatingWin.HideWindow;
-                    if (floatingWin.HideWindow)
-                        floatingWin.ClearWindow();
-                    else
-                        floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
-                    break;
-
-            }
-
-            switch (key.Key)
-            {
-                case ConsoleKey.UpArrow:
-                    listWindow.ScrollUp();
-                    statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
-                    statusBar.Draw();
-
-                    break;
-                case ConsoleKey.DownArrow:
-                    listWindow.ScrollDown();
-                    statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
-                    statusBar.Draw();
-                    break;
-                case ConsoleKey.RightArrow:
-                    if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.DIRECTORY)
-                    {
-                        currentPath = listWindow.Items[listWindow.SelectedIndex].Path;
-                        dirChange = true;
-                    }
-                    break;
-                case ConsoleKey.LeftArrow:
-                    string? tryGetPath = Path.GetDirectoryName(currentPath);
-                    if (!string.IsNullOrEmpty(tryGetPath))
-                        currentPath = tryGetPath;
-                    dirChange = true;
-                    break;
-
 
                 case ConsoleKey.Backspace:
                     statusBar.ErrorMessage = string.Empty;
                     statusBar.Notify = false;
                     statusBar.Draw();
                     break;
-            }
+                default:
 
-        }
-        Console.Write(showCursor); // Show Cursor
-        Console.Write("\x1b[?1049l"); // Deactivate alternative screen buffer
+                    switch (key.KeyChar)
+                    {
+                        // Command line input ------------------------------------------------------
+                        case ':':
+                            if (!floatingWin.HideWindow && floatingWin.ScreenSizeBigEnough)
+                                floatingWin.DrawQuickHelp(TextStore.CommandHeader, TextStore.CommandText);
+
+                            string command = commandLine.GetString();
+                            if (!string.IsNullOrEmpty(command))
+                            {
+                                CommandType type = 0;
+                                string value;
+                                (type, value) = CommandParser.Parse(command);
+
+                                switch (type)
+                                {
+                                    case CommandType.QUIT:
+                                        isRunning = false;
+                                        break;
+
+                                    case CommandType.HOME:
+                                        currentPath = homePath;
+                                        dirChange = true;
+                                        break;
+
+                                    case CommandType.CONFIG:
+                                        floatingWin.ConfigWindow(userSettings.Configs);
+                                        listWindow.Style.Active = userSettings.Configs.ListStyle;
+                                        pathBar.Style.Active = userSettings.Configs.PathStyle;
+                                        floatingWin.Style.Active = userSettings.Configs.HelpStyle;
+                                        updateFullWindow = true;
+                                        configChange = true;
+                                        break;
+                                    case CommandType.NONE:
+                                        updateFullWindow = true;
+                                        break;
+
+
+                                }
+                                
+                                if (configChange)
+                                    userSettings.Update(listWindow.Style, pathBar.Style, floatingWin.Style);
+                            }
+                            else
+                            {
+                                updateFullWindow = true;
+                            }
+                            break;
+                        // ------------------------------------------------------------------------
+
+                        case '?':
+                            floatingWin.HideWindow = !floatingWin.HideWindow;
+                            if (floatingWin.HideWindow)
+                                floatingWin.ClearWindow();
+                            else
+                                floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
+
+                            break;
+
+                        case '!':
+                            if (floatType == FloatWindowType.HELP)
+                                floatType = FloatWindowType.INFO;
+                            else
+                                floatType = FloatWindowType.HELP;
+                            updateFullWindow = true;
+                            break;
+                    }
+
+                    break;
+
+            } // Switch case closing bracket
+
+        } // Main loop closing bracket
+
+        Console.Write(Ansi.showCursor); // Show Cursor
+        Console.Write(Ansi.disableAltBuffer); // Deactivate alternative screen buffer
         Console.Clear();
     }
 }

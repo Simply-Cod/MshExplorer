@@ -4,16 +4,6 @@ namespace MshExplorer;
 
 class CommandLine
 {
-    const string darkBlue = "\e[38;2;61;64;91m";
-    const string green = "\e[38;2;129;178;154m";
-    const string blue = "\e[38;2;41;81;242m";
-    
-    const string bold = "\e[1m";
-    const string reset = "\e[0m";
-    const string deleteLine = "\e[2K";
-    const string hideCursor = "\e[?25l";
-    const string showCursor = "\e[?25h";
-
     public string Header;
     public string ToolTip;
     public string LastCommand;
@@ -85,7 +75,7 @@ class CommandLine
                 if (i == 0)
                 {
                     if (j == 0)
-                        Console.Write($"{darkBlue}╭");
+                        Console.Write($"{Ansi.darkBlue}╭");
                     else if (j == width)
                         Console.Write("╮");
                     else
@@ -96,7 +86,7 @@ class CommandLine
                     if (j == 0)
                         Console.Write("╰");
                     else if (j == width)
-                        Console.Write($"╯{reset}");
+                        Console.Write($"╯{Ansi.reset}");
                     else
                         Console.Write("─");
                 }
@@ -115,33 +105,33 @@ class CommandLine
         if (!string.IsNullOrEmpty(Header))
         {
             Console.SetCursorPosition(3, 0);
-            Console.Write($" {green}{bold}{Header}{reset} ");
+            Console.Write($" {Ansi.green}{Ansi.bold}{Header}{Ansi.reset} ");
         }
 
         if (!string.IsNullOrEmpty(ToolTip))
         {
             Console.SetCursorPosition(50, 0);
-            Console.Write($" {blue}{reset} {ToolTip}");
+            Console.Write($" {Ansi.blue}{Ansi.reset} {ToolTip}");
         }
 
         Console.SetCursorPosition(3, 2);
         Console.Write("Enter to Confirm ─ Esc to Cancel ");
 
         Console.SetCursorPosition(2, 1); // Input location
-        Console.Write($"{bold}>{reset} ");
-        Console.Write(showCursor);
+        Console.Write($"{Ansi.bold}>{Ansi.reset} ");
+        Console.Write(Ansi.showCursor);
 
     }
 
     public void RemoveCommandLine()
     {
-        Console.Write(deleteLine);
-        Console.Write(deleteLine); Console.SetCursorPosition(0, 0);
-        Console.Write(deleteLine); Console.SetCursorPosition(0, 2);
-        Console.Write(deleteLine);
+        Console.Write(Ansi.deleteLine);
+        Console.Write(Ansi.deleteLine); Console.SetCursorPosition(0, 0);
+        Console.Write(Ansi.deleteLine); Console.SetCursorPosition(0, 2);
+        Console.Write(Ansi.deleteLine);
 
         Console.SetCursorPosition(CursorPos.Item1, CursorPos.Item2);
-        Console.Write(hideCursor);
+        Console.Write(Ansi.hideCursor);
 
     }
 }

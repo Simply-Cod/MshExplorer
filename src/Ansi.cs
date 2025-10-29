@@ -9,6 +9,9 @@ static class Ansi
     public const string showCursor = "\e[?25h";
     public const string eraseLine = "\e[2K";
 
+    public const string enableAltBuffer = "\e[?1049h";
+    public const string disableAltBuffer = "\e[?1049l";
+
     public const string bold = "\e[1m";
     public const string orange = "\e[38;2;224;122;95m";
     public const string green = "\e[38;2;129;178;154m";
@@ -17,7 +20,6 @@ static class Ansi
     public const string red = "\e[38;2;186;61;52m";
     public const string mellow = "\e[38;2;154;151;132m";
     public const string yellow = "\x1b[38;5;11m";
-
 
 
     public const string vimColor = "\e[38;2;90;157;82m";
@@ -61,67 +63,51 @@ static class Ansi
     public static string srcColor = "\e[38;2;117;60;8m";
     public static string incColor = "\e[38;2;140;205;247m";
     public static string makeColor = "\e[38;2;164;6;182m";
-    
 
-
-    public static readonly Dictionary<string, string> NerdEditors = new Dictionary<string, string>
-    {
-        ["vim"] = $"{vimColor}{bold} Vim{reset}",
-        ["nvim"] = $"{vimColor}{bold} NeoVim{reset}",
-        ["nano"] = $"{nanoColor}{bold} nano{reset}",
-        ["code"] = $"{vscColor}{bold} Vs Code{reset}",
-        ["notepad"] = $"{vscColor}{bold} notepad{reset}",
-        ["emacs"] = $"{emacsColor}{bold} Emacs{reset}",
-        ["pico"] = $"{bold}{nanoColor} pico{reset}",
-    };
-
-    public static readonly Dictionary<string, string> Editors = new Dictionary<string, string>
-    {
-        ["vim"] = $"{vimColor}{bold} Vim{reset}",
-        ["nvim"] = $"{vimColor}{bold} NeoVim{reset}",
-        ["nano"] = $"{nanoColor}{bold} nano{reset}",
-        ["code"] = $"{vscColor}{bold} Vs Code{reset}",
-        ["notepad"] = $"{vscColor}{bold} notepad{reset}",
-        ["emacs"] = $"{emacsColor}{bold} Emacs{reset}",
-        ["pico"] = $"{bold}{nanoColor} pico{reset}",
-    };
-
-    public static string GetFormattedEditor(string editor, bool nerdFont)
-    {
-        if (string.IsNullOrWhiteSpace(editor) || editor == "null")
-            return string.Empty;
-
-        if (nerdFont)
-        {
-            if (NerdEditors.TryGetValue(editor, out var val))
-                return val;
-        }
-        else
-        {
-            if (Editors.TryGetValue(editor, out var val))
-                return val;
-        }
-
-        return string.Empty;
-
-    }
-
-    private static readonly Dictionary<string, (string nerd, string uni, string color)> _fileMap =
+private static readonly Dictionary<string, (string nerd, string uni, string color)> _fileMap =
          new(StringComparer.OrdinalIgnoreCase)
          {
-             [".cs"] = ("", "🗎", csharpFileColor),   
-             [".c"] = ("", "🗎", cFileColor),   
+             [".cs"] = ("", "🗎", csharpFileColor),
+             [".c"] = ("", "🗎", cFileColor),
              [".h"] = ("󰜕", "🗎", cFileColor),
-             [".cpp"] = ("", "🗎", cFileColor),  
+             [".cpp"] = ("", "🗎", cFileColor),
              [".txt"] = ("", "🗎", "\x1b[33m"),
          };
-    private static readonly Dictionary<string, (string nerd, string uni, string color)> _dirMap =
+
+private static readonly Dictionary<string, (string nerd, string uni, string color)> _dirMap =
         new(StringComparer.OrdinalIgnoreCase)
         {
             [".git"] = ("", "🗀", gitColor),
             ["src"] = ("", "🗀", srcColor),
             ["include"] = ("", "🗀", incColor),
         };
+
+    private static readonly Dictionary<string, (string nerd, string none)> _editorMap =
+             new(StringComparer.OrdinalIgnoreCase)
+             {
+                 ["vim"] = ($"{vimColor}{bold} Vim{reset}", $"{vimColor}{bold} Vim{reset}"),
+                 ["nvim"] = ($"{vimColor}{bold} NeoVim{reset}", $"{vimColor}{bold} NeoVim{reset}"),
+                 ["nano"] = ($"{nanoColor}{bold} nano{reset}", $"{nanoColor}{bold} nano{reset}"),
+                 ["code"] = ($"{vscColor}{bold} Vs Code{reset}", $"{vscColor}{bold} Vs Code{reset}"),
+                 ["notepad"] = ($"{vscColor}{bold} notepad{reset}", $"{vscColor}{bold} notepad{reset}"),
+                 ["emacs"] = ($"{emacsColor}{bold} Emacs{reset}",$"{emacsColor}{bold} Emacs{reset}"),
+                 ["pico"] = ($"{bold}{nanoColor} pico{reset}",$"{bold}{nanoColor} pico{reset}"),
+
+             };
+
+    public static string GetFormattedEditor(string editor, bool nerdFont)
+    {
+        if (string.IsNullOrWhiteSpace(editor) || editor == "null")
+            return string.Empty;
+
+        if(_editorMap.TryGetValue(editor, out var ed))
+        {
+            return nerdFont ? ed.nerd : ed.none;
+        }
+
+        return string.Empty;
+    }
+
 
     public static string GetFormattedText(ExplorerItem item, bool hasNerdFont)
     {

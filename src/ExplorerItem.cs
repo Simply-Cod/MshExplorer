@@ -11,7 +11,6 @@ public enum ExplorerType
 
 public class ExplorerItem
 {
-
     public string DisplayName { get; set; }
     public string Path { get; set; }
     public ExplorerType Type { get; set; }

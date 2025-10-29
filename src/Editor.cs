@@ -21,6 +21,16 @@ class Editor
         TERMINAL,
         GUI
     };
+    public static readonly string[] Editors = [
+                "vim",
+                "nvim",
+                "nano",
+                "notepad",
+                "code",
+                "emacs",
+                "pico",
+                "null"
+                ];
 
 
     public static void OpenEditor(ExplorerItem argument, string editor)
@@ -92,13 +102,13 @@ class Editor
 
         try
         {
-            Console.Write("\e[?25h");
+            Console.Write(Ansi.showCursor);
             var process = Process.Start(psi);
 
             if (process != null)
                 process.WaitForExit();
 
-            Console.Write("\e[?25l");
+            Console.Write(Ansi.hideCursor);
             Util.Clear();
         }
         catch

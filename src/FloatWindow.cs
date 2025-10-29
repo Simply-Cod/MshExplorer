@@ -153,16 +153,7 @@ class FloatingWindow
     {
         UserConfigs configs = new();
         configs = userConfigs;
-        string[] editors = [
-                "vim",
-                "nvim",
-                "nano",
-                "notepad",
-                "code",
-                "emacs",
-                "pico",
-                "null"
-                ];
+        
         string ConfigHeader = "Config";
 
 
@@ -218,13 +209,13 @@ class FloatingWindow
                 case ConsoleKey.L:
                     if (select == 0)
                     {
-                        int editorSelect = Array.IndexOf(editors, configs.Editor);
+                        int editorSelect = Array.IndexOf(Editor.Editors, configs.Editor);
 
-                        if (editorSelect == editors.Length - 1)
+                        if (editorSelect == Editor.Editors.Length - 1)
                             editorSelect = 0;
                         else
                             editorSelect++;
-                        configs.Editor = editors[editorSelect];
+                        configs.Editor = Editor.Editors[editorSelect];
                     }
                     else
                     {
@@ -235,13 +226,13 @@ class FloatingWindow
                 case ConsoleKey.H:
                     if (select == 0)
                     {
-                        int editorSelect = Array.IndexOf(editors, configs.Editor);
+                        int editorSelect = Array.IndexOf(Editor.Editors, configs.Editor);
 
                         if (editorSelect == 0)
-                            editorSelect = editors.Length - 1;
+                            editorSelect = Editor.Editors.Length - 1;
                         else
                             editorSelect--;
-                        configs.Editor = editors[editorSelect];
+                        configs.Editor = Editor.Editors[editorSelect];
                     }
                     else
                     {
