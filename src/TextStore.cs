@@ -16,6 +16,8 @@ static class TextStore
             "Toggle floating Window      ?",
             "Search Index                /",
             "Toggle Info/Quick help      !",
+            "Cycle floating windows      (1-3) or ?",
+            "Mark mode                   m",
             "Remove Status Message       Backspace",
             "Quit                        q",
         ];
