@@ -15,10 +15,7 @@ class Program
         bool dirChange = false;
         bool configChange = true;
 
-        bool viewingPreview = false;
-
         string currentPath = Directory.GetCurrentDirectory();
-        string homePath = currentPath;
         string ExceptionMessage = string.Empty;
 
         ConsoleKeyInfo key;
@@ -45,9 +42,12 @@ class Program
         PathBar pathBar = new();
         CommandLine commandLine = new();
         ListWindow listWindow = new(width: 40, directoryItems);
-        FloatingWindow floatingWin = new(width: 50, height: 15); // Width normal: 45
+        FloatingWindow floatingWin = new(); 
         StatusBar statusBar = new();
         FloatWindowType floatType = FloatWindowType.HELP;
+
+        MarkWindow markWindow = new();  
+
 
 
 
@@ -61,6 +61,7 @@ class Program
                 prevHeight = Console.WindowHeight;
                 prevWidth = Console.WindowWidth;
                 listWindow.SetHeight();
+                markWindow.SetSize(); 
                 updateFullWindow = true;
                 dirChange = true;
                 Util.Clear();
@@ -72,13 +73,37 @@ class Program
                 {
                     case FloatWindowType.HELP:
                         if (dirChange || updateFullWindow)
+                        {
                             floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
+                            floatingWin.DrawWindowPanes(TextStore.Windows[0]);
+                        }
                         break;
                     case FloatWindowType.INFO:
-                        if (listWindow.Items.Count > 0 && !viewingPreview)
+                        if (listWindow.Items.Count > 0)
+                        {
                             floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
-                        viewingPreview = false;
+                            floatingWin.DrawWindowPanes(TextStore.Windows[1]);
+                        }
                         break;
+                    case FloatWindowType.MARK:
+                        markWindow.DrawMarks();
+                        floatingWin.DrawWindowPanes(TextStore.Windows[3]);
+                        break;
+                    case FloatWindowType.PREVIEW:
+                        if (listWindow.Items.Count > 0)
+                        {
+                            if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.FILE)
+                            {
+                                floatingWin.DrawPreviewFile(listWindow.Items[listWindow.SelectedIndex]);
+                            }
+                            else if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.DIRECTORY)
+                            {
+                                floatingWin.PreviewDirectory(listWindow.Items[listWindow.SelectedIndex]);
+                            }
+                        }
+                        floatingWin.DrawWindowPanes(TextStore.Windows[2]);
+                        break;
+
                 }
 
             }
@@ -87,9 +112,10 @@ class Program
             {
                 pathBar.UpdateConfigs(userSettings.Configs);
                 listWindow.UpdateConfigs(userSettings.Configs);
-                listWindow.SetItems(directoryItems);
+                listWindow.SetItems(directoryItems, markWindow.MarkedList);
                 floatingWin.UpdateConfigs(userSettings.Configs);
                 statusBar.UpdateConfigs(userSettings.Configs);
+                markWindow.SetStyle(floatingWin.Style);
                 configChange = false;
             }
 
@@ -112,7 +138,7 @@ class Program
                 directoryItems.Clear();
                 directoryItems = ExplorerItem.GetDirItems(currentPath, ref statusBar.ErrorMessage);
                 pathBar.Draw(currentPath);
-                listWindow.SetItems(directoryItems);
+                listWindow.SetItems(directoryItems, markWindow.MarkedList);
                 listWindow.DrawBorder();
                 listWindow.DrawList();
                 statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
@@ -195,8 +221,8 @@ class Program
                         }
                         else if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.FILE)
                         {
-                            floatingWin.DrawPreview(listWindow.Items[listWindow.SelectedIndex]);
-                            viewingPreview = true;
+                            floatType = FloatWindowType.PREVIEW;
+                            updateFullWindow = true;
                         }
                     }
                     break;
@@ -270,7 +296,7 @@ class Program
                     dirChange = true;
                     break;
                 case ConsoleKey.Divide:
-                    bool success = FileSearch.PatternMatch(currentPath, listWindow.Items, listWindow, statusBar);
+                    bool success = FileSearch.PatternMatch(currentPath, listWindow.Items, listWindow, statusBar, markWindow.MarkedList);
                     if (!success)
                         dirChange = true;
                     break;
@@ -280,13 +306,34 @@ class Program
                     statusBar.Notify = false;
                     statusBar.Draw();
                     break;
+                case ConsoleKey.M:
+                    if (listWindow.Items.Count > 0)
+                        MarkLogic.MarkMode(markWindow, listWindow.Items[listWindow.SelectedIndex], currentPath, ref dirChange);
+                    else
+                        MarkLogic.MarkMode(markWindow, new(string.Empty, string.Empty, ExplorerType.NONE), currentPath, ref dirChange);
+                 
+                    updateFullWindow = true;
+                    break;
+                case ConsoleKey.D1:
+                    floatType = FloatWindowType.INFO;
+                    updateFullWindow = true;
+                    break;
+                case ConsoleKey.D2:
+                    floatType = FloatWindowType.PREVIEW;
+                    updateFullWindow = true;
+                    break;
+                case ConsoleKey.D3:
+                    floatType = FloatWindowType.MARK;
+                    updateFullWindow = true;
+                    break;
                 default:
 
                     switch (key.KeyChar)
                     {
                         case '/':
                             {
-                                bool ok = FileSearch.PatternMatch(currentPath, listWindow.Items, listWindow, statusBar);
+                                bool ok = FileSearch.PatternMatch(currentPath, listWindow.Items,
+                                        listWindow, statusBar, markWindow.MarkedList);
                                 if (!ok)
                                     dirChange = true;
                                 break;
@@ -311,7 +358,9 @@ class Program
                                         break;
 
                                     case CommandType.HOME:
-                                        currentPath = homePath;
+                                        if (!string.IsNullOrWhiteSpace(userSettings.Configs.HomePath))
+                                            currentPath = userSettings.Configs.HomePath;
+
                                         dirChange = true;
                                         break;
 
@@ -322,6 +371,9 @@ class Program
                                         floatingWin.Style.Active = userSettings.Configs.HelpStyle;
                                         updateFullWindow = true;
                                         configChange = true;
+                                        break;
+                                    case CommandType.SET_HOME:
+                                        userSettings.Configs.HomePath = currentPath;  
                                         break;
                                     case CommandType.NONE:
                                         updateFullWindow = true;
@@ -341,23 +393,10 @@ class Program
                         // ------------------------------------------------------------------------
 
                         case '?':
-                            floatingWin.HideWindow = !floatingWin.HideWindow;
-                            if (floatingWin.HideWindow)
-                                floatingWin.ClearWindow();
-                            else
-                                floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
-
-                            break;
-
-                        case '!':
-                            if (floatType == FloatWindowType.HELP)
-                                floatType = FloatWindowType.INFO;
-                            else
-                                floatType = FloatWindowType.HELP;
+                            floatType = FloatWindowType.HELP;
                             updateFullWindow = true;
                             break;
                     }
-
                     break;
 
             } // Switch case closing bracket

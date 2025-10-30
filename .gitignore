@@ -80,4 +80,5 @@ temp/
 
 Test.cs
 settings.json
+config.json
 explorer-config.txt

@@ -14,12 +14,14 @@ public class ExplorerItem
     public string DisplayName { get; set; }
     public string Path { get; set; }
     public ExplorerType Type { get; set; }
+    public bool Marked {get; set;}
 
     public ExplorerItem(string displayName, string path, ExplorerType type)
     {
         DisplayName = displayName;
         Path = path;
         Type = type;
+        Marked = false;
     }
 
     public static List<ExplorerItem> GetDirItems(string currentPath, ref string errMessage)

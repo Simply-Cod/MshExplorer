@@ -5,6 +5,7 @@ public enum CommandType
 {
     NONE,
     QUIT,
+    SET_HOME,
     HOME,
     CONFIG,
 }
@@ -16,6 +17,7 @@ class CommandParser
     {
         ["quit"] = CommandType.QUIT,
         ["home"] = CommandType.HOME,
+        ["set home"] = CommandType.SET_HOME,
         ["config"] = CommandType.CONFIG,
     };
     

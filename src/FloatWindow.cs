@@ -7,6 +7,8 @@ enum FloatWindowType
 {
     HELP,
     INFO,
+    MARK,
+    PREVIEW,
 }
 class FloatingWindow
 {
@@ -27,10 +29,10 @@ class FloatingWindow
     public bool NerdFont;
     public HelpStyler Style;
 
-    public FloatingWindow(int width, int height)
+    public FloatingWindow()
     {
-        Width = Console.WindowWidth - ListWindowRequiredWidth;
-        Height = height;
+        Width = Console.WindowWidth - ListWindowRequiredWidth - RightPadding;
+        Height = Console.WindowHeight - TopPadding - 2; // 2 for statusbar 
 
         StartX = ListWindowRequiredWidth;
         StartY = TopPadding;
@@ -86,12 +88,11 @@ class FloatingWindow
     private void DrawWindowText(string header, string[] text, bool truncate)
     {
         (int, int) cursorPos = Console.GetCursorPosition();
-        int headerIndent = 5;
         int textOffset = 2;
         int x = StartX;
         int y = StartY;
 
-        Console.SetCursorPosition(x + headerIndent, y);
+        Console.SetCursorPosition((StartX + Width) / 2, StartY);
         Console.Write($" {Style.Header}{header}{Style.Reset} ");
         y++;
         Console.SetCursorPosition(x + textOffset, y);
@@ -271,10 +272,10 @@ class FloatingWindow
         (int X, int Y) curPos = Console.GetCursorPosition();
         int textStartX = StartX + 2;
         int textStartY = StartY + 2;
-        int maxLength = 40;
+        int maxLength = Width - 8;
 
-        Console.SetCursorPosition(StartX + 5, StartY);
-        Console.Write($"{Style.Header} Info {Style.Reset}");
+        Console.SetCursorPosition((StartX + Width) / 2, StartY);
+        Console.Write($"{Style.Header}[1] Info {Style.Reset}");
 
         string header = $"{Ansi.GetFormattedText(current, NerdFont, maxLength)}";
 
@@ -347,7 +348,7 @@ class FloatingWindow
 
     }
 
-    public void DrawPreview(ExplorerItem file)
+    public void DrawPreviewFile(ExplorerItem file)
     {
         int x = StartX + 2;
         int y = StartY + 2;
@@ -372,23 +373,17 @@ class FloatingWindow
         catch (Exception ex)
         {
             Console.SetCursorPosition(x, y);
-            Console.Write($"Error: {ex.Message}");
+            Console.Write($"Error: {Ansi.TruncateString(ex.Message, Width - 10)}");
 
         }
 
 
         try
         {
-            string header = Ansi.GetFormattedText(file, NerdFont, MinimumWidth);
+            string header = string.Empty;
             string[] previewText = File.ReadLines(file.Path)
                             .Take(Height - 2).ToArray();
             DrawWindowText(header, previewText, truncate: true);
-
-            for (int i = 0; i < previewText.Length; i++)
-            {
-                Console.SetCursorPosition(x, y);
-
-            }
 
         }
         catch (FieldAccessException ex)
@@ -403,5 +398,40 @@ class FloatingWindow
 
         }
     }
+    public void PreviewDirectory(ExplorerItem dir)
+    {
+        int x = StartX + 2;
+        int y = StartY + 2;
+        DrawBorder();
+        string err = string.Empty;
+        if (!Directory.Exists(dir.Path))
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write("Directory dont excists error");
+            return;
+        }
 
+        try 
+        {
+           List<ExplorerItem> list = ExplorerItem.GetDirItems(dir.Path, ref err); 
+
+           for (int i = 0; i < list.Count; i++)
+           {
+               if (i >= Height - 2)
+                   break;
+               Console.SetCursorPosition(x, y + i);
+               if (Style.Active)
+                   Console.Write(Ansi.GetFormattedText(list[i], NerdFont, Width - 5));
+               else
+                    Console.Write(Ansi.TruncateString(list[i].DisplayName, Width - 5));
+           }
+        }
+        catch(Exception) {}
+    }
+
+    public void DrawWindowPanes(string windowPanes)
+    {
+        Console.SetCursorPosition(StartX + 5, StartY);
+        Console.Write($"{Style.Border}{windowPanes}{Style.Reset}");
+    }
 }

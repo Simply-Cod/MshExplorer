@@ -5,12 +5,21 @@ namespace MshExplorer;
 class UserHandler
 {
 
-    private const string Path = "settings.json";
+    private string FilePath = "config.json";
     public UserConfigs Configs;
     public string ExceptionMessage;
 
     public UserHandler()
     {
+        try
+        {
+            string? exeDir = AppContext.BaseDirectory;
+            if (!string.IsNullOrWhiteSpace(exeDir))
+            {
+                FilePath = Path.Combine(exeDir, "config.json");
+            }
+        }
+        catch{}
         Configs = new();
         ExceptionMessage = string.Empty;
     }
@@ -20,7 +29,7 @@ class UserHandler
         try
         {
             string json = JsonSerializer.Serialize(Configs, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(Path, json);
+            File.WriteAllText(FilePath, json);
         }
         catch (Exception ex)
         {
@@ -30,12 +39,12 @@ class UserHandler
 
     public void ReadConfigs()
     {
-        if (!File.Exists(Path))
+        if (!File.Exists(FilePath))
             return;
 
         try
         {
-            string json = File.ReadAllText(Path);
+            string json = File.ReadAllText(FilePath);
             if (!string.IsNullOrWhiteSpace(json))
                 Configs = JsonSerializer.Deserialize<UserConfigs>(json) ?? new();
         }
@@ -95,6 +104,7 @@ class UserConfigs
     public bool ListStyle {get; set;} = true;
     public bool PathStyle {get; set;} = true;
     public bool HelpStyle {get ; set;} = true;
+    public string HomePath {get; set;} = string.Empty;
 }
 
 

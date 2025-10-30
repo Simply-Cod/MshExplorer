@@ -64,6 +64,8 @@ static class Ansi
     public static string incColor = "\e[38;2;140;205;247m";
     public static string makeColor = "\e[38;2;164;6;182m";
 
+
+
     private static readonly Dictionary<string, (string nerd, string uni, string color)> _fileMap =
              new(StringComparer.OrdinalIgnoreCase)
              {

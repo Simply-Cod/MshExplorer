@@ -57,12 +57,13 @@ class ListWindow
         Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
-    public void SetItems(List<ExplorerItem> items)
+    public void SetItems(List<ExplorerItem> items, List<ExplorerItem> markedList)
     {
         Items = new(items);
         SelectedIndex = 0;
         ScrollOffset = 0;
         SetStyleCacheList();
+
     }
     // --- Test --- 
     private void SetStyleCacheList()
@@ -82,7 +83,7 @@ class ListWindow
     // --- 
     public void SetHeight()
     {
-        Height = Console.WindowHeight - (StartY + 1); // + 1 Because of statusBar
+        Height = Console.WindowHeight - (StartY + 1);
     }
 
     public void ScrollUp()
@@ -101,7 +102,7 @@ class ListWindow
             if (SelectedIndex < ScrollOffset)
                 ScrollOffset--;
         }
-
+        SetHeight();
         DrawList();
 
     }
@@ -122,6 +123,7 @@ class ListWindow
             if (SelectedIndex >= ScrollOffset + Height - 1)
                 ScrollOffset++;
         }
+        SetHeight();
         DrawList();
     }
 
@@ -152,11 +154,10 @@ class ListWindow
                         text = $" *{Items[itemIndex].DisplayName}/";
                 }
 
-
-                if (itemIndex == SelectedIndex)
-                    Console.Write($" {listCursor} {text}");
-                else
-                    Console.Write($"   {text}");
+                    if (itemIndex == SelectedIndex)
+                        Console.Write($"  {listCursor} {text}");
+                    else
+                        Console.Write($"    {text}");
 
                 int curX = Console.CursorLeft;
                 int remaining = (StartX + Width) - curX - 1;

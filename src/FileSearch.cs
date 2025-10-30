@@ -5,7 +5,8 @@ namespace MshExplorer;
 class FileSearch
 {
 
-    public static bool PatternMatch(string currentPath, List<ExplorerItem> currentList, ListWindow listWin, StatusBar status)
+    public static bool PatternMatch(string currentPath, List<ExplorerItem> currentList,
+            ListWindow listWin, StatusBar status, List<ExplorerItem> markedList)
     {
         CommandLine cli = new();
         StringBuilder pattern = new();
@@ -53,7 +54,7 @@ class FileSearch
                 searchList = fileQuery.ToList();
                 listWin.SelectedIndex = 0;
                 listWin.TopIndex = 0;
-                listWin.SetItems(searchList);
+                listWin.SetItems(searchList, markedList);
                 listWin.DrawList();
                 status.SetIndexAndCount(listWin.SelectedIndex, listWin.Items.Count);
                 status.Draw();
