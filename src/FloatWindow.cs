@@ -130,11 +130,7 @@ class FloatingWindow
         SetWindowSize();
         Console.SetCursorPosition(StartX, StartY);
 
-<<<<<<< HEAD
         for (int i = 0; i < Height; i++)
-=======
-        for (int i = 0; i < Height + TopPadding; i++)
->>>>>>> ce59dcffd718379577b798203b2d07805f7240a6
         {
             Console.Write("\e[0K"); // Erase Rest of Line
             Console.SetCursorPosition(StartX, StartY + i);
