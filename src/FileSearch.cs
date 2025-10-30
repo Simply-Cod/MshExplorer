@@ -25,19 +25,25 @@ class FileSearch
             status.SetIndexAndCount(listWin.SelectedIndex, listWin.Items.Count);
             status.Draw();
             cli.DrawCommandLine();
+
+            int x = 4; // cursor x position
+            int y = 1; // cursor y position
             while (true)
             {
+                Console.SetCursorPosition(x,y);
                 key = Console.ReadKey(true);
 
                 if (key.Key == ConsoleKey.Backspace && pattern.Length > 0)
                 {
                     pattern.Remove(pattern.Length - 1, 1);
+                    x--;
                     Console.Write("\b \b");
                 }
                 else if (pattern.Length < maxLength && !char.IsControl(key.KeyChar))
                 {
                     pattern.Append(key.KeyChar);
                     Console.Write(key.KeyChar);
+                    x++;
                 }
                 else if (key.Key == ConsoleKey.Escape)
                 {
