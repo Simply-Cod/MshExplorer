@@ -5,7 +5,6 @@ class StatusBar
 {
     public string ErrorMessage;
     private string StatusBarText;
-    public ExplorerItem ClipboardItem;
     public bool Notify = false;
     public int SelectedIndex;
     public int TotalItems;
@@ -15,7 +14,6 @@ class StatusBar
     public StatusBar()
     {
         ErrorMessage = string.Empty;
-        ClipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
         StatusBarText = string.Empty;
         Editor = string.Empty;
         NerdFont = false;
@@ -50,27 +48,13 @@ class StatusBar
             if (!string.IsNullOrEmpty(ErrorMessage))
                 StatusBarText = $"{StatusBarText}{Ansi.bgDark} | {Ansi.red}{ErrorMessage}{Ansi.reset}";
         }
-        else
-        {
-            if (ClipboardItem.Type != ExplorerType.NONE)
-                StatusBarText = $"{StatusBarText}{Ansi.bgDark} | {Ansi.GetFormattedText(ClipboardItem, NerdFont)}";
-        }
+        
 
         Console.Write($"{Ansi.bgDark} {StatusBarText}{Ansi.bgDark}\x1b[K{Ansi.reset}");
     }
 
 
-    public void AddClipboardItem(ExplorerItem item)
-    {
-        ClipboardItem = new(item.DisplayName, item.Path, item.Type);
-        Draw();
-    }
-    public void ClearClipboardItem()
-    {
-        ClipboardItem = new(string.Empty, string.Empty, ExplorerType.NONE);
-        Draw();
-    }
-    public void UpdateConfigs(UserConfigs configs)
+        public void UpdateConfigs(UserConfigs configs)
     {
         Editor = configs.Editor;
         NerdFont = configs.NerdFont;

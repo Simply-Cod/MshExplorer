@@ -357,7 +357,7 @@ class FloatingWindow
 
             if (ExplorerItem.IsBinaryFile(file.Path, 500, ref err))
             {
-                Console.SetCursorPosition(x, y);
+                Console.SetCursorPosition(StartX + 5, StartY + 2);
                 Console.Write("--- Binary file ---");
                 return;
             }
@@ -375,6 +375,12 @@ class FloatingWindow
             string header = string.Empty;
             string[] previewText = File.ReadLines(file.Path)
                             .Take(Height - 2).ToArray();
+            if (previewText.Length == 0)
+            {
+                Console.SetCursorPosition(StartX + 5, StartY + 2);
+                Console.Write(" --- Empty File ---");
+                return;
+            }
             DrawWindowText(previewText, truncate: true);
 
         }
@@ -406,6 +412,11 @@ class FloatingWindow
         try
         {
             List<ExplorerItem> list = ExplorerItem.GetDirItems(dir.Path, ref err);
+            if (list.Count == 0)
+            {
+                Console.SetCursorPosition(StartX + 5, StartY + 2);
+                Console.Write(" --- Empty Directory ---");
+            }
 
             for (int i = 0; i < list.Count; i++)
             {

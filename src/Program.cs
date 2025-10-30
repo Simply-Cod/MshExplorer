@@ -42,11 +42,11 @@ class Program
         PathBar pathBar = new();
         CommandLine commandLine = new();
         ListWindow listWindow = new(width: 40, directoryItems);
-        FloatingWindow floatingWin = new(); 
+        FloatingWindow floatingWin = new();
         StatusBar statusBar = new();
         FloatWindowType floatType = FloatWindowType.HELP;
 
-        MarkWindow markWindow = new();  
+        MarkWindow markWindow = new();
 
 
 
@@ -60,7 +60,7 @@ class Program
                 prevHeight = Console.WindowHeight;
                 prevWidth = Console.WindowWidth;
                 listWindow.SetHeight();
-                markWindow.SetSize(); 
+                markWindow.SetSize();
                 updateFullWindow = true;
                 dirChange = true;
                 Util.Clear();
@@ -252,31 +252,6 @@ class Program
                         }
                     }
                     break;
-                case ConsoleKey.Y:
-                    if (pathBar.WriteAccess)
-                    {
-                        statusBar.ClipboardItem = listWindow.Items[listWindow.SelectedIndex];
-                        statusBar.Draw();
-                    }
-                    else
-                    {
-                        ExceptionMessage = "You do not have access to files in this directory";
-                    }
-                    break;
-                case ConsoleKey.P:
-                    if (statusBar.ClipboardItem.Type == ExplorerType.FILE)
-                    {
-                        Util.PasteFile(statusBar.ClipboardItem, currentPath, ref ExceptionMessage);
-                        statusBar.ClearClipboardItem();
-                        dirChange = true;
-                    }
-                    else if (statusBar.ClipboardItem.Type == ExplorerType.DIRECTORY)
-                    {
-                        Util.PasteDirectory(statusBar.ClipboardItem.Path, currentPath, ref ExceptionMessage);
-                        statusBar.ClearClipboardItem();
-                        dirChange = true;
-                    }
-                    break;
 
                 case ConsoleKey.E:
                     if (userSettings.Configs.Editor == string.Empty || userSettings.Configs.Editor == "null")
@@ -310,7 +285,7 @@ class Program
                         MarkLogic.MarkMode(markWindow, listWindow.Items[listWindow.SelectedIndex], currentPath, ref dirChange);
                     else
                         MarkLogic.MarkMode(markWindow, new(string.Empty, string.Empty, ExplorerType.NONE), currentPath, ref dirChange);
-                 
+
                     updateFullWindow = true;
                     break;
                 case ConsoleKey.D1:
@@ -372,7 +347,7 @@ class Program
                                         configChange = true;
                                         break;
                                     case CommandType.SET_HOME:
-                                        userSettings.Configs.HomePath = currentPath;  
+                                        userSettings.Configs.HomePath = currentPath;
                                         break;
                                     case CommandType.NONE:
                                         updateFullWindow = true;
