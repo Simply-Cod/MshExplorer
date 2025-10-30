@@ -60,6 +60,9 @@ class FloatingWindow
     {
         Width = Console.WindowWidth - ListWindowRequiredWidth - RightPadding;
         Height = Console.WindowHeight - TopPadding - 2; // 2 for statusbar 
+        StartX = ListWindowRequiredWidth;
+        StartY = TopPadding;
+
     }
 
 
@@ -127,7 +130,6 @@ class FloatingWindow
         SetWindowSize();
         Console.SetCursorPosition(StartX, StartY);
 
-        int y = StartY;
         for (int i = 0; i < Height + TopPadding; i++)
         {
             Console.Write("\e[0K"); // Erase Rest of Line
