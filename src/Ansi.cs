@@ -14,6 +14,7 @@ static class Ansi
 
     public const string bold = "\e[1m";
     public const string orange = "\e[38;2;224;122;95m";
+    public const string darkOrange = "\e[38;2;184;82;55m";
     public const string green = "\e[38;2;129;178;154m";
     public const string blue = "\e[38;2;41;81;242m";
     public const string darkBlue = "\e[38;2;61;64;91m";
@@ -28,7 +29,6 @@ static class Ansi
     public const string emacsColor = "\x1b[38;5;135m";
 
     public const string bgDark = "\e[48;2;31;43;61m";
-    public const string bgMellow = "\e[48;2;154;151;132m";
 
     // All
     public static string Border = darkBlue;
@@ -229,5 +229,22 @@ static class Ansi
     {
         return text.Replace("\t", "    ");
     }
-    
+
+    public static void DrawBanner()
+    {
+       const string banner =
+@"███████╗██╗  ██╗██████╗ ██╗      ██████╗ ██████╗ ███████╗██████╗ 
+██╔════╝╚██╗██╔╝██╔══██╗██║     ██╔═══██╗██╔══██╗██╔════╝██╔══██╗
+█████╗   ╚███╔╝ ██████╔╝██║     ██║   ██║██████╔╝█████╗  ██████╔╝
+██╔══╝   ██╔██╗ ██╔═══╝ ██║     ██║   ██║██╔══██╗██╔══╝  ██╔══██╗
+███████╗██╔╝ ██╗██║     ███████╗╚██████╔╝██║  ██║███████╗██║  ██║";
+        Console.SetCursorPosition(0, 0);
+        Console.Write(Ansi.darkOrange + banner + Ansi.reset);
+    }
+    public static void RemoveBanner()
+    {
+        Console.SetCursorPosition(0,0);
+        Console.Write($"{deleteLine}\n{deleteLine}\n{deleteLine}\n{deleteLine}\n{deleteLine}");
+        
+    }
 }

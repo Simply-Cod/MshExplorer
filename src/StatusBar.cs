@@ -36,7 +36,6 @@ class StatusBar
 
     public void Draw()
     {
-        (int, int) cursorPos = Console.GetCursorPosition();
         Console.SetCursorPosition(0, Math.Max(0, Console.WindowHeight - 1));
         StatusBarText = $" {SelectedIndex}/{TotalItems} ";
 
@@ -58,7 +57,6 @@ class StatusBar
         }
 
         Console.Write($"{Ansi.bgDark} {StatusBarText}{Ansi.bgDark}\x1b[K{Ansi.reset}");
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
 

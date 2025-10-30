@@ -36,13 +36,11 @@ class PathBar
             header = $"{header}{Style.Reset}";
 
         
-        (int, int) cursorPos = Console.GetCursorPosition();
         Console.SetCursorPosition(0, 5);
         Console.Write(Ansi.deleteLine);
         Console.Write("\e[0G"); // Move cursor to column 0
         Console.Write(header);
 
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
     public void UpdateConfigs(UserConfigs configs)

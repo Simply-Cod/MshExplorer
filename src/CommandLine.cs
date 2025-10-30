@@ -7,7 +7,6 @@ class CommandLine
     public string Header;
     public string ToolTip;
     public string LastCommand;
-    private (int, int) CursorPos;
 
     public CommandLine()
     {
@@ -57,51 +56,24 @@ class CommandLine
         return item;
     }
 
+    private void DrawBorder()
+    {
+        int width = 48;
 
+        StringBuilder sb = new();
+        string top = $"{Ansi.Border}╭{new string('─', width - 1)}╮\n";
+        string middle = $"│{new string(' ', width - 1)}│\n";
+        string bottom = $"╰{new string('─', width - 1)}╯{Ansi.reset}\n";
+        sb.Append(top).Append(middle).Append(bottom);
+        Console.SetCursorPosition(0,0);
+        Console.Write(sb.ToString());
+        
+    }
 
     public void DrawCommandLine()
     {
-        CursorPos = Console.GetCursorPosition();
-        int startX = 0;
-        int startY = 0;
-        int width = 48;
-        int height = 2;
-        Console.SetCursorPosition(startX, startY);
+        DrawBorder();
 
-        for (int i = 0; i <= height; i++)
-        {
-            for (int j = 0; j <= width; j++)
-            {
-                if (i == 0)
-                {
-                    if (j == 0)
-                        Console.Write($"{Ansi.darkBlue}╭");
-                    else if (j == width)
-                        Console.Write("╮");
-                    else
-                        Console.Write("─");
-                }
-                else if (i == height)
-                {
-                    if (j == 0)
-                        Console.Write("╰");
-                    else if (j == width)
-                        Console.Write($"╯{Ansi.reset}");
-                    else
-                        Console.Write("─");
-                }
-                else
-                {
-                    if (j == 0)
-                        Console.Write("│");
-                    else if (j == width)
-                        Console.Write("│");
-                    else
-                        Console.Write(" ");
-                }
-            }
-            Console.SetCursorPosition(startX, startY + (i + 1));
-        }
         if (!string.IsNullOrEmpty(Header))
         {
             Console.SetCursorPosition(3, 0);
@@ -110,7 +82,7 @@ class CommandLine
 
         if (!string.IsNullOrEmpty(ToolTip))
         {
-            Console.SetCursorPosition(50, 0);
+            Console.SetCursorPosition(0, 3);
             Console.Write($" {Ansi.blue}{Ansi.reset} {ToolTip}");
         }
 
@@ -125,13 +97,15 @@ class CommandLine
 
     public void RemoveCommandLine()
     {
-        Console.Write(Ansi.deleteLine);
-        Console.Write(Ansi.deleteLine); Console.SetCursorPosition(0, 0);
+        Console.SetCursorPosition(0, 0);
+        Console.Write(Ansi.deleteLine); Console.SetCursorPosition(0, 1);
         Console.Write(Ansi.deleteLine); Console.SetCursorPosition(0, 2);
+        Console.Write(Ansi.deleteLine); Console.SetCursorPosition(0, 3);
         Console.Write(Ansi.deleteLine);
 
-        Console.SetCursorPosition(CursorPos.Item1, CursorPos.Item2);
         Console.Write(Ansi.hideCursor);
 
     }
+
+    
 }

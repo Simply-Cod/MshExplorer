@@ -72,26 +72,26 @@ public class Util
 
     public static void RemoveItem(ExplorerItem item, ref string errMessage, bool nerdFont)
     {
-        bool dirWithContent = false;
-        (int, int) cursorPos = Console.GetCursorPosition();
-        Console.SetCursorPosition(0, 1);
+        //bool dirWithContent = false;
 
-        if (item.Type == ExplorerType.DIRECTORY)
-        {
-            if (Directory.GetFiles(item.Path).Length > 0)
-            {
-                dirWithContent = true;
-            }
-            if (Directory.GetDirectories(item.Path).Length > 0)
-            {
-                dirWithContent = true;
-            }
-        }
+        // if (item.Type == ExplorerType.DIRECTORY)
+        // {
+        //     if (Directory.GetFiles(item.Path).Length > 0)
+        //     {
+        //         dirWithContent = true;
+        //     }
+        //     if (Directory.GetDirectories(item.Path).Length > 0)
+        //     {
+        //         dirWithContent = true;
+        //     }
+        // }
 
-        if (dirWithContent)
-        {
+        // if (dirWithContent)
+        // {
+        
+            Console.SetCursorPosition(0, 1);
             string format = Ansi.GetFormattedText(item, nerdFont);
-            Console.Write($"   Remove {format} And it's Content?"); Console.SetCursorPosition(0, 2);
+            Console.Write($"   Delete {format}?"); Console.SetCursorPosition(0, 2);
             Console.Write("    (y)Yes (n)No");
             char key = 'a';
 
@@ -106,11 +106,9 @@ public class Util
             {
                 Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 1);
                 Console.Write("\x1b[2K");
-                Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-
                 return;
             }
-        }
+        // }
 
         try
         {
@@ -148,7 +146,6 @@ public class Util
 
         Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 1);
         Console.Write("\x1b[2K");
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
     public static void PasteFile(ExplorerItem clipboardItem, string currentPath, ref string errMessage)
@@ -211,7 +208,7 @@ public class Util
             foreach (var f in subFiles)
             {
                 string tempPath = Path.Combine(currentPath, f.Name);
-                f.CopyTo(tempPath, true); // The bool tells the function to overwrite if file already exists
+                f.CopyTo(tempPath, overwrite: true); 
             }
 
             foreach (var d in subDirs)

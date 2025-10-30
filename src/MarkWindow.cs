@@ -72,7 +72,6 @@ class MarkWindow
         string middle = $"│{new string(' ', Width - 1)}│\n";
         string bottom = $"╰{new string('─', Width - 1)}╯{Style.Reset}\n";
 
-        (int, int) cursorPos = Console.GetCursorPosition();
 
         for (int i = 0; i <= Height; i++)
         {
@@ -85,20 +84,13 @@ class MarkWindow
             else
                 Console.Write(middle);
         }
-
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
-    private void DrawWindowText(string header, string[] text, bool truncate)
+    private void DrawWindowText(string[] text, bool truncate)
     {
-        (int, int) cursorPos = Console.GetCursorPosition();
-        int headerIndent = 5;
         int textOffset = 2;
         int x = StartX;
-        int y = StartY;
+        int y = StartY + 1;
 
-        Console.SetCursorPosition(x + headerIndent, y);
-        Console.Write($" {Style.Header}{header}{Style.Reset} ");
-        y++;
         Console.SetCursorPosition(x + textOffset, y);
 
         for (int i = 0; i < text.Length; i++)
@@ -110,13 +102,11 @@ class MarkWindow
             else
                 Console.Write($"{Style.Text}{t}{Style.Reset}"); // Test add truncation
         }
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
     public void DrawMarks()
     {
         DrawBorder();
-        (int X, int Y) curPos = Console.GetCursorPosition();
         int textStartX = StartX + 2;
         int textStartY = StartY + 2;
         int maxLength = Width - 8;
@@ -143,7 +133,6 @@ class MarkWindow
 
     public void ClearWindow()
     {
-        (int, int) cursorPos = Console.GetCursorPosition();
         Console.SetCursorPosition(StartX, StartY);
 
         int y = StartY;
@@ -152,6 +141,5 @@ class MarkWindow
             Console.Write("\e[0K"); // Erase Rest of Line
             Console.SetCursorPosition(StartX, StartY + i);
         }
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 }

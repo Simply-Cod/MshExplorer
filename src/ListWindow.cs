@@ -40,11 +40,9 @@ class ListWindow
         string middle = $"│{new string(' ', Width - 1)}│\n";
         string bottom = $"╰{new string('─', Width - 1)}╯{Style.Reset}\n";
 
-        (int, int) cursorPos = Console.GetCursorPosition();
 
         for (int i = 0; i <= Height; i++)
         {
-            //Console.SetCursorPosition(StartX, StartY + i);
             Console.Write($"\x1b[{StartY + i};{StartX + 1}H"); // Maybe faster than setcursor
             if (i == 0)
                 Console.Write(top);
@@ -54,7 +52,6 @@ class ListWindow
                 Console.Write(middle);
         }
 
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
     public void SetItems(List<ExplorerItem> items, List<ExplorerItem> markedList)
@@ -129,7 +126,6 @@ class ListWindow
 
     public void DrawList()
     {
-        (int, int) cursorPos = Console.GetCursorPosition();
         int indent = 2;
         string listCursor = $"{Style.Cursor}>{Style.Reset}";
 
@@ -172,8 +168,6 @@ class ListWindow
                     Console.Write(new string(' ', Width - indent));
             }
         }
-
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
     public void UpdateConfigs(UserConfigs configs)
@@ -186,6 +180,5 @@ class ListWindow
         else
             Style.Deactivate();
     }
-
 
 }

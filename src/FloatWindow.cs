@@ -74,8 +74,6 @@ class FloatingWindow
         string middle = $"│{new string(' ', Width - 1)}│\n";
         string bottom = $"╰{new string('─', Width - 1)}╯{Style.Reset}\n";
 
-        (int, int) cursorPos = Console.GetCursorPosition();
-
         for (int i = 0; i <= Height; i++)
         {
             Console.SetCursorPosition(StartX, StartY + i);
@@ -88,21 +86,16 @@ class FloatingWindow
                 Console.Write(middle);
         }
 
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
 
 
-    private void DrawWindowText(string header, string[] text, bool truncate)
+    private void DrawWindowText(string[] text, bool truncate)
     {
-        (int, int) cursorPos = Console.GetCursorPosition();
         int textOffset = 2;
         int x = StartX;
-        int y = StartY;
+        int y = StartY + 1;
 
-        Console.SetCursorPosition((StartX + Width) / 2, StartY);
-        Console.Write($" {Style.Header}{header}{Style.Reset} ");
-        y++;
         Console.SetCursorPosition(x + textOffset, y);
 
         for (int i = 0; i < text.Length; i++)
@@ -114,19 +107,17 @@ class FloatingWindow
             else
                 Console.Write($"{Style.Text}{t}{Style.Reset}"); // Test add truncation
         }
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
     public void DrawQuickHelp(string helpHeader, string[] helpText)
     {
         DrawBorder();
-        DrawWindowText(helpHeader, helpText, truncate: false);
+        DrawWindowText(helpText, truncate: false);
     }
 
 
     public void ClearWindow()
     {
-        // (int, int) cursorPos = Console.GetCursorPosition();
         SetWindowSize();
         Console.SetCursorPosition(StartX, StartY);
 
@@ -135,7 +126,6 @@ class FloatingWindow
             Console.Write("\e[0K"); // Erase Rest of Line
             Console.SetCursorPosition(StartX, StartY + i);
         }
-        //  Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
     public void UpdateConfigs(UserConfigs configs)
@@ -172,13 +162,10 @@ class FloatingWindow
         UserConfigs configs = new();
         configs = userConfigs;
 
-        string ConfigHeader = "Config";
-
 
         bool[] configurations = [configs.NerdFont, configs.ListStyle, configs.PathStyle,
         configs.HelpStyle];
 
-        (int X, int Y) CurPos = Console.GetCursorPosition();
         int configStartX = StartX + 23;
         int configStartY = StartY + 1;
 
@@ -199,7 +186,7 @@ class FloatingWindow
     $"Float Window Style       {Ansi.bold}[{Ansi.yellow}{configs.HelpStyle}{shortAnsi}]{Ansi.reset}  ",
             ];
 
-            DrawWindowText(ConfigHeader, ConfigText, truncate: false);
+            DrawWindowText(ConfigText, truncate: false);
             Console.SetCursorPosition(configStartX, configStartY + select);
             Console.Write($"{Ansi.bold}{Ansi.orange}>{Ansi.reset}");
             key = Console.ReadKey(true);
@@ -270,14 +257,11 @@ class FloatingWindow
             configs.HelpStyle = configurations[3];
         }
 
-        Console.SetCursorPosition(CurPos.X, CurPos.Y);
-
     }
 
     public void DrawInfo(ExplorerItem current)
     {
         DrawBorder();
-        (int X, int Y) curPos = Console.GetCursorPosition();
         int textStartX = StartX + 2;
         int textStartY = StartY + 2;
         int maxLength = Width - 8;
@@ -391,18 +375,18 @@ class FloatingWindow
             string header = string.Empty;
             string[] previewText = File.ReadLines(file.Path)
                             .Take(Height - 2).ToArray();
-            DrawWindowText(header, previewText, truncate: true);
+            DrawWindowText(previewText, truncate: true);
 
         }
         catch (FieldAccessException ex)
         {
             Console.SetCursorPosition(x, y);
-            Console.Write($"Error: {ex.Message}");
+            Console.Write($"FieldAccessException: {Ansi.TruncateString(ex.Message, 10)}");
         }
         catch (Exception ex)
         {
             Console.SetCursorPosition(x, y);
-            Console.Write($"Error: {ex.Message}");
+            Console.Write($"Error: {Ansi.TruncateString(ex.Message, 15)}");
 
         }
     }
