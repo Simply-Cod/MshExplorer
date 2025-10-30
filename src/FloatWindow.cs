@@ -56,6 +56,11 @@ class FloatingWindow
 
         return ScreenSizeBigEnough;
     }
+    public void SetWindowSize()
+    {
+        Width = Console.WindowWidth - ListWindowRequiredWidth - RightPadding;
+        Height = Console.WindowHeight - TopPadding - 2; // 2 for statusbar 
+    }
 
 
 
@@ -112,13 +117,14 @@ class FloatingWindow
     public void DrawQuickHelp(string helpHeader, string[] helpText)
     {
         DrawBorder();
-        DrawWindowText(helpHeader, helpText, truncate:false);
+        DrawWindowText(helpHeader, helpText, truncate: false);
     }
 
 
     public void ClearWindow()
     {
-        (int, int) cursorPos = Console.GetCursorPosition();
+        // (int, int) cursorPos = Console.GetCursorPosition();
+        SetWindowSize();
         Console.SetCursorPosition(StartX, StartY);
 
         int y = StartY;
@@ -127,7 +133,7 @@ class FloatingWindow
             Console.Write("\e[0K"); // Erase Rest of Line
             Console.SetCursorPosition(StartX, StartY + i);
         }
-        Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
+        //  Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
     }
 
     public void UpdateConfigs(UserConfigs configs)
@@ -411,22 +417,22 @@ class FloatingWindow
             return;
         }
 
-        try 
+        try
         {
-           List<ExplorerItem> list = ExplorerItem.GetDirItems(dir.Path, ref err); 
+            List<ExplorerItem> list = ExplorerItem.GetDirItems(dir.Path, ref err);
 
-           for (int i = 0; i < list.Count; i++)
-           {
-               if (i >= Height - 2)
-                   break;
-               Console.SetCursorPosition(x, y + i);
-               if (Style.Active)
-                   Console.Write(Ansi.GetFormattedText(list[i], NerdFont, Width - 5));
-               else
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (i >= Height - 2)
+                    break;
+                Console.SetCursorPosition(x, y + i);
+                if (Style.Active)
+                    Console.Write(Ansi.GetFormattedText(list[i], NerdFont, Width - 5));
+                else
                     Console.Write(Ansi.TruncateString(list[i].DisplayName, Width - 5));
-           }
+            }
         }
-        catch(Exception) {}
+        catch (Exception) { }
     }
 
     public void DrawWindowPanes(string windowPanes)
