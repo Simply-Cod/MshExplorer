@@ -27,7 +27,6 @@ It allows users to browse, create, edit (from a list of editors) and delete file
 - emacs
 - pico
 - notepad
-![demo](https://github.com/Simply-Cod/MshExplorer/blob/master/media/cinnamon-2025-10-31T222857%2B0100.webm)
 
 ## Known Issues
 **Gnome Terminal Compatibility:**
