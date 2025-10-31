@@ -49,7 +49,7 @@ static class TextStore
         $"       {Ansi.green}--- Mark Mode ---{Ansi.reset}",
         $"{Ansi.mellow}[m]    Toggle Mark     [a]     Mark all{Ansi.reset}",
         $"{Ansi.mellow}[c]    Clear           [p]     Paste{Ansi.reset}",
-        $"{Ansi.mellow}[g]    Go to           {Ansi.reset}",
+        $"{Ansi.mellow}[g]    Go to           [w]/[l]     Write/Load marks to/from file{Ansi.reset}",
     ];
     public static string[] markPasteMode = [
         $"{Ansi.mellow}         {Ansi.green}--- Paste ---{Ansi.reset}",

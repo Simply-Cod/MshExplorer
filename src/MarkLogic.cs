@@ -52,6 +52,12 @@ class MarkLogic
 
                 }
                 break;
+            case 'w':
+                markWindow.WriteMarks();
+                break;
+            case 'l':
+                markWindow.LoadMarks();
+                break;
         }
         TextStore.ClearMarkKeys(4);
     }

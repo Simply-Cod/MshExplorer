@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 
 namespace MshExplorer;
 
@@ -121,7 +122,7 @@ class MarkWindow
                 return;
 
             Console.SetCursorPosition(textStartX, textStartY + i);
-            if(Style.Active)
+            if (Style.Active)
                 Console.Write($"{i} " + Ansi.GetFormattedText(MarkedList[i], NerdFont, 40));
             else
                 Console.Write($"{i} " + Ansi.TruncateString(MarkedList[i].DisplayName, 40));
@@ -139,5 +140,49 @@ class MarkWindow
             Console.Write("\e[0K"); // Erase Rest of Line
             Console.SetCursorPosition(StartX, StartY + i);
         }
+    }
+
+    public void WriteMarks()
+    {
+        string? exeDir = AppContext.BaseDirectory;
+        string filePath = string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(exeDir))
+        {
+            filePath = Path.Combine(exeDir, "marks.json");
+        }
+
+        string json = JsonSerializer.Serialize(MarkedList, new JsonSerializerOptions {WriteIndented = true});
+
+        try
+        {
+            File.WriteAllText(filePath, json);
+        }
+        catch {}
+    }
+
+    public void LoadMarks()
+    {
+         string? exeDir = AppContext.BaseDirectory;
+        string filePath = string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(exeDir))
+        {
+            filePath = Path.Combine(exeDir, "marks.json");
+        }
+
+        if (!File.Exists(filePath))
+            return;
+
+        string json = string.Empty;
+        try
+        {
+            json = File.ReadAllText(filePath);
+            MarkedList = new();
+
+            MarkedList = JsonSerializer.Deserialize<List<ExplorerItem>>(json)!;
+        }
+        catch {}
+
     }
 }

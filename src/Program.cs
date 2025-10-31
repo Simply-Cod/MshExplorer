@@ -48,6 +48,7 @@ class Program
         FloatWindowType floatType = FloatWindowType.HELP;
 
         MarkWindow markWindow = new();
+        markWindow.LoadMarks();
 
 
 
