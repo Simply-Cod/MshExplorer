@@ -28,6 +28,8 @@ It allows users to browse, create, edit (from a list of editors) and delete file
 - pico
 - notepad
 
+
+[![Demo](https://github.com/Simply-Cod/MshExplorer/blob/master/media/msh-explorer-mark.png)](https://github.com/Simply-Cod/MshExplorer/blob/master/media/msh-demo-.mp4)
 ## Known Issues
 **Gnome Terminal Compatibility:**
 - The Gnome terminal may struggle with large amounts of escape codes.
