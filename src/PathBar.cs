@@ -42,6 +42,23 @@ class PathBar
         Console.Write(header);
 
     }
+    public static void DrawRecursiveSearchBar(string currentPath)
+    {
+       if (string.IsNullOrWhiteSpace(currentPath))
+           return;
+
+       string name = string.Empty;
+       try
+       {
+            name = Path.GetFileName(currentPath)!;
+       }
+       catch {}
+        Console.SetCursorPosition(0, 5);
+        Console.Write(Ansi.deleteLine);
+        Console.Write("\e[0G"); // Move cursor to column 0
+        string header = $"{Ansi.dirColor}{Ansi.bold} {name}   --- Recursive Search ---{Ansi.reset}";
+        Console.Write(header);
+    }
 
     public void UpdateConfigs(UserConfigs configs)
     {

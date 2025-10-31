@@ -54,7 +54,7 @@ class ListWindow
 
     }
 
-    public void SetItems(List<ExplorerItem> items, List<ExplorerItem> markedList)
+    public void SetItems(List<ExplorerItem> items)
     {
         Items = new(items);
         SelectedIndex = 0;

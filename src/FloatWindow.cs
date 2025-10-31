@@ -266,8 +266,8 @@ class FloatingWindow
         int textStartY = StartY + 2;
         int maxLength = Width - 8;
 
-        Console.SetCursorPosition((StartX + Width) / 2, StartY);
-        Console.Write($"{Style.Header}[1] Info {Style.Reset}");
+        //Console.SetCursorPosition((StartX + Width) / 2, StartY);
+        //Console.Write($"{Style.Header}[1] Info {Style.Reset}");
 
         string header = $"{Ansi.GetFormattedText(current, NerdFont, maxLength)}";
 
@@ -311,6 +311,8 @@ class FloatingWindow
                 Console.Write($"{Style.InfoHL}Sub Directories:{Style.Reset}      {Style.Text}{dir.GetDirectories().Length}{Style.Reset}");
                 Console.SetCursorPosition(textStartX, textStartY + 4);
                 Console.Write($"{Style.InfoHL}Number of Files:{Style.Reset}      {Style.Text}{dir.GetFiles().Length}{Style.Reset}");
+                Console.SetCursorPosition(textStartX, textStartY + 5);
+                Console.Write($"{Style.InfoHL}Path:{Style.Reset}      {Style.Text}{dir.FullName}{Style.Reset}");
 
             }
             catch { }

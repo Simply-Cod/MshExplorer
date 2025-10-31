@@ -111,8 +111,6 @@ class MarkWindow
         int textStartY = StartY + 2;
         int maxLength = Width - 8;
 
-        Console.SetCursorPosition((StartX + Width) / 2, StartY);
-        Console.Write($"{Style.Header}[2] Marks {Style.Reset}");
 
         if (MarkedList.Count <= 0)
             return;

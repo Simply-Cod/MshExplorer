@@ -4,7 +4,7 @@ namespace MshExplorer;
 class MarkLogic
 {
 
-    public static void MarkMode(MarkWindow markWindow, ExplorerItem current, string currentPath, ref bool dirChange)
+    public static void MarkMode(MarkWindow markWindow, ExplorerItem current, string currentPath, ref bool dirChange, List<ExplorerItem> allListItems)
     {
         ConsoleKeyInfo key;
 
@@ -14,21 +14,10 @@ class MarkLogic
         switch (key.KeyChar)
         {
             case 'm': // Toggle mark on current file
-                ExplorerItem temp = new(string.Empty, string.Empty, ExplorerType.NONE);
-                bool itemRemoved = false;
-                if (markWindow.MarkedList.Count > 0)
+                int idx = markWindow.MarkedList.FindIndex(x => x.Path == current.Path);
+                if (idx >= 0)
                 {
-                    foreach (var item in markWindow.MarkedList)
-                    {
-                        if (current.Path == item.Path)
-                        {
-                            markWindow.MarkedList.Remove(item);
-                            itemRemoved = true;
-                            break;
-                        }
-                    }
-                    if (!itemRemoved)
-                        markWindow.MarkedList.Add(current);
+                    markWindow.MarkedList.RemoveAt(idx);
                 }
                 else
                 {
@@ -43,6 +32,20 @@ class MarkLogic
                 if (markWindow.MarkedList.Count > 0)
                     ClearMode(markWindow.MarkedList);
                 break;
+            case 'a': // Add all that are currently not in the marklist
+                if (allListItems.Count > 0)
+                {
+                    var existing = new HashSet<string>(markWindow.MarkedList.Select(i => i.Path));
+                    foreach (var item in allListItems)
+                    {
+                        if (existing.Add(item.Path))
+                        {
+                            markWindow.MarkedList.Add(item);
+                        }
+                    }
+
+                }
+                    break;
         }
         TextStore.ClearMarkKeys(3);
     }
@@ -60,15 +63,44 @@ class MarkLogic
         {
 
             case 'a':
-                foreach (var item in markList)
+                for (int i = markList.Count - 1; i >= 0; i--)
                 {
-                    if (item.Type == ExplorerType.FILE)
-                        Util.PasteFile(item, currentPath, ref err);
-                    else if (item.Type == ExplorerType.DIRECTORY)
-                        Util.PasteDirectory(item.Path, currentPath, ref err);
+                    if (markList[i].Type == ExplorerType.FILE)
+                    {
+                        Util.PasteFile(markList[i], currentPath, ref err);
+                        markList.RemoveAt(i);
+                    }
+                    else if (markList[i].Type == ExplorerType.DIRECTORY)
+                    {
+                        Util.PasteDirectory(markList[i].Path, currentPath, ref err);
+                        markList.RemoveAt(i);
+                    }
 
                 }
-                dirChange = true;
+                break;
+            case 'p':
+                if (markList.Count > 0 && markList[markList.Count - 1].Type == ExplorerType.FILE)
+                {
+                    Util.PasteFile(markList[markList.Count - 1],currentPath, ref err);
+                    markList.RemoveAt(markList.Count - 1);
+                }
+                else if (markList.Count > 0 && markList[markList.Count - 1].Type == ExplorerType.DIRECTORY)
+                {
+                    Util.PasteDirectory(markList[markList.Count - 1].Path,currentPath, ref err);
+                    markList.RemoveAt(markList.Count - 1);
+                }
+                break;
+            case 'f':
+                if (markList.Count > 0 && markList[0].Type == ExplorerType.FILE)
+                {
+                    Util.PasteFile(markList[0],currentPath, ref err);
+                    markList.RemoveAt(0);
+                }
+                else if (markList.Count > 0 && markList[0].Type == ExplorerType.DIRECTORY)
+                {
+                    Util.PasteDirectory(markList[0].Path,currentPath, ref err);
+                    markList.RemoveAt(0);
+                }
                 break;
             case '0':
             case '1':
@@ -87,14 +119,19 @@ class MarkLogic
                 if (markList[index].Type == ExplorerType.FILE)
                 {
                     Util.PasteFile(markList[index], currentPath, ref err);
+                    markList.RemoveAt(index);
                 }
                 else if (markList[index].Type == ExplorerType.DIRECTORY)
                 {
                     Util.PasteDirectory(markList[index].Path, currentPath, ref err);
+                    markList.RemoveAt(index);
                 }
-                dirChange = true;
                 break;
+
+            default:
+                return;
         }
+        dirChange = true;
 
     }
 
@@ -125,6 +162,14 @@ class MarkLogic
                 break;
             case 'a':
                 markList.Clear();
+                break;
+            case 'c':
+                if (markList.Count > 0)
+                    markList.RemoveAt(markList.Count -1);
+                break;
+            case 'f':
+                if (markList.Count > 0)
+                    markList.RemoveAt(0);
                 break;
         }
 

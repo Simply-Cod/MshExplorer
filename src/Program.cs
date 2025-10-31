@@ -3,11 +3,12 @@
 // unicode for info 🛈
 // ↵
 
+
 namespace MshExplorer;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
 
         bool isRunning = true;
@@ -66,7 +67,7 @@ class Program
                 Util.Clear();
             }
 
-            if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
+            if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow && !dirChange)
             {
                 switch (floatType)
                 {
@@ -81,8 +82,8 @@ class Program
                         if (listWindow.Items.Count > 0)
                         {
                             floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
-                            floatingWin.DrawWindowPanes(TextStore.Windows[1]);
                         }
+                        floatingWin.DrawWindowPanes(TextStore.Windows[1]);
                         break;
                     case FloatWindowType.MARK:
                         markWindow.DrawMarks();
@@ -102,16 +103,14 @@ class Program
                         }
                         floatingWin.DrawWindowPanes(TextStore.Windows[2]);
                         break;
-
                 }
-
             }
 
             if (configChange)
             {
                 pathBar.UpdateConfigs(userSettings.Configs);
                 listWindow.UpdateConfigs(userSettings.Configs);
-                listWindow.SetItems(directoryItems, markWindow.MarkedList);
+                listWindow.SetItems(directoryItems);
                 floatingWin.UpdateConfigs(userSettings.Configs);
                 statusBar.UpdateConfigs(userSettings.Configs);
                 markWindow.SetStyle(floatingWin.Style);
@@ -137,19 +136,44 @@ class Program
                 directoryItems.Clear();
                 directoryItems = ExplorerItem.GetDirItems(currentPath, ref statusBar.ErrorMessage);
                 pathBar.Draw(currentPath);
-                listWindow.SetItems(directoryItems, markWindow.MarkedList);
+                listWindow.SetItems(directoryItems);
                 listWindow.DrawBorder();
                 listWindow.DrawList();
                 statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
                 statusBar.Draw();
 
 
-                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow && floatType == FloatWindowType.INFO)
+                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
                 {
-                    if (listWindow.Items.Count > 0)
-                        floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
+                    switch (floatType)
+                    {
+                        case FloatWindowType.INFO:
+                            if (listWindow.Items.Count > 0)
+                            {
+                                floatingWin.DrawInfo(listWindow.Items[listWindow.SelectedIndex]);
+                            }
+                            floatingWin.DrawWindowPanes(TextStore.Windows[1]);
+                            break;
+                        case FloatWindowType.MARK:
+                            markWindow.DrawMarks();
+                            floatingWin.DrawWindowPanes(TextStore.Windows[3]);
+                            break;
+                        case FloatWindowType.PREVIEW:
+                            if (listWindow.Items.Count > 0)
+                            {
+                                if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.FILE)
+                                {
+                                    floatingWin.DrawPreviewFile(listWindow.Items[listWindow.SelectedIndex]);
+                                }
+                                else if (listWindow.Items[listWindow.SelectedIndex].Type == ExplorerType.DIRECTORY)
+                                {
+                                    floatingWin.PreviewDirectory(listWindow.Items[listWindow.SelectedIndex]);
+                                }
+                            }
+                            floatingWin.DrawWindowPanes(TextStore.Windows[2]);
+                            break;
+                    }
                 }
-
                 dirChange = false;
             }
             // Exceptions
@@ -237,22 +261,6 @@ class Program
                     commandLine.Header = string.Empty;
                     commandLine.ToolTip = string.Empty;
                     break;
-                case ConsoleKey.D:
-                    if (directoryItems.Count > 0)
-                    {
-                        if (pathBar.WriteAccess)
-                        {
-                            Util.RemoveItem(listWindow.Items[listWindow.SelectedIndex],
-                                    ref ExceptionMessage, userSettings.Configs.NerdFont);
-                            dirChange = true;
-                        }
-                        else
-                        {
-                            ExceptionMessage = "You do not have access to files in this directory.";
-                        }
-                    }
-                    break;
-
                 case ConsoleKey.E:
                     if (userSettings.Configs.Editor == string.Empty || userSettings.Configs.Editor == "null")
                     {
@@ -282,9 +290,9 @@ class Program
                     break;
                 case ConsoleKey.M:
                     if (listWindow.Items.Count > 0)
-                        MarkLogic.MarkMode(markWindow, listWindow.Items[listWindow.SelectedIndex], currentPath, ref dirChange);
+                        MarkLogic.MarkMode(markWindow, listWindow.Items[listWindow.SelectedIndex], currentPath, ref dirChange, listWindow.Items);
                     else
-                        MarkLogic.MarkMode(markWindow, new(string.Empty, string.Empty, ExplorerType.NONE), currentPath, ref dirChange);
+                        MarkLogic.MarkMode(markWindow, new(string.Empty, string.Empty, ExplorerType.NONE), currentPath, ref dirChange, listWindow.Items);
 
                     updateFullWindow = true;
                     break;
@@ -312,6 +320,9 @@ class Program
                                     dirChange = true;
                                 break;
                             }
+                        case 'F':
+                            await FileSearch.PatternMatchAllAsync(currentPath, listWindow, statusBar);
+                            break;
 
                         // Command line input ------------------------------------------------------
                         case ':':
@@ -348,6 +359,7 @@ class Program
                                         break;
                                     case CommandType.SET_HOME:
                                         userSettings.Configs.HomePath = currentPath;
+                                        userSettings.WriteConfigs();
                                         break;
                                     case CommandType.NONE:
                                         updateFullWindow = true;
@@ -369,6 +381,21 @@ class Program
                         case '?':
                             floatType = FloatWindowType.HELP;
                             updateFullWindow = true;
+                            break;
+                        case 'D':
+                            if (directoryItems.Count > 0)
+                            {
+                                if (pathBar.WriteAccess)
+                                {
+                                    Util.RemoveItem(listWindow.Items[listWindow.SelectedIndex],
+                                            ref ExceptionMessage, userSettings.Configs.NerdFont);
+                                    dirChange = true;
+                                }
+                                else
+                                {
+                                    ExceptionMessage = "You do not have access to files in this directory.";
+                                }
+                            }
                             break;
                     }
                     break;

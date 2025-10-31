@@ -9,11 +9,12 @@ static class TextStore
             "Move Between Directories    ←/→ or h/l",
             "Add File/Directory          a",
             "Mark mode                   m",
-            "Delete File/Directory       d",
+            "Delete File/Directory       D",
             "Open Editor                 e",
             "Explorer CommandLine        :",
             "Toggle floating Window      ?",
             "Search Index                /",
+            "Recursive File Search       F",
             "Toggle Info/Quick help      !",
             "Cycle floating windows      (1-3) or ?",
             "Remove Status Message       Backspace",
@@ -46,16 +47,18 @@ static class TextStore
 
     public static string[] markMode = [
         $"       {Ansi.green}--- Mark Mode ---{Ansi.reset}",
-        $"{Ansi.mellow}[m]    Toggle Mark     [p]     Paste{Ansi.reset}",
-        $"{Ansi.mellow}[c]    Clear{Ansi.reset}",
+        $"{Ansi.mellow}[m]    Toggle Mark     [a]     Mark all{Ansi.reset}",
+        $"{Ansi.mellow}[c]    Clear           [p]     Paste{Ansi.reset}",
     ];
     public static string[] markPasteMode = [
         $"{Ansi.mellow}         {Ansi.green}--- Paste ---{Ansi.reset}",
-        $"{Ansi.mellow}<index>    at index    [a]     Paste all{Ansi.reset}"
+        $"{Ansi.mellow}<index>    at index    [a]     Paste all{Ansi.reset}",
+        $"{Ansi.mellow}[p]        Paste Last  [f]     Paste first{Ansi.reset}",
     ];
     public static string[] markClearMode = [
         $"         {Ansi.green}--- Clear ---{Ansi.reset}",
-        $"{Ansi.mellow}<index>    at index    [a]     Clear all{Ansi.reset}"
+        $"{Ansi.mellow}<index>    at index    [a]     Clear all{Ansi.reset}",
+        $"{Ansi.mellow}[c]        Clear last  [f]     Clear first{Ansi.reset}",
     ];
     public static void MarkKeys(string[] markHelp)
     {
