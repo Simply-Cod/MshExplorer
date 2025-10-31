@@ -45,7 +45,7 @@ class FileSearch
                 }
                 else if (key.Key == ConsoleKey.Escape)
                 {
-                    listWin.SetItems(currentList);
+                    listWin.SetItems(currentList, markedList);
                     listWin.SelectedIndex = 0;
                     listWin.TopIndex = 0;
                     listWin.DrawList();
@@ -69,7 +69,7 @@ class FileSearch
                 
                 listWin.SelectedIndex = 0;
                 listWin.TopIndex = 0;
-                listWin.SetItems(view);
+                listWin.SetItems(view, markedList);
                 listWin.DrawList();
                 status.SetIndexAndCount(listWin.SelectedIndex, listWin.Items.Count);
                 status.Draw();
@@ -84,7 +84,7 @@ class FileSearch
     }
 
 
-    public static async Task PatternMatchAllAsync(string currentPath, ListWindow listWin, StatusBar status)
+    public static async Task PatternMatchAllAsync(string currentPath, ListWindow listWin, StatusBar status, List<ExplorerItem> markedList)
     {
         var fullList = await GetAllFiles(currentPath);
 
@@ -185,7 +185,7 @@ class FileSearch
 
                 listWin.SelectedIndex = 0;
                 listWin.TopIndex = 0;
-                listWin.SetItems(filtered);
+                listWin.SetItems(filtered, markedList);
                 listWin.DrawList();
                 status.SetIndexAndCount(listWin.SelectedIndex, listWin.Items.Count);
                 status.Draw();

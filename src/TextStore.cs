@@ -49,6 +49,7 @@ static class TextStore
         $"       {Ansi.green}--- Mark Mode ---{Ansi.reset}",
         $"{Ansi.mellow}[m]    Toggle Mark     [a]     Mark all{Ansi.reset}",
         $"{Ansi.mellow}[c]    Clear           [p]     Paste{Ansi.reset}",
+        $"{Ansi.mellow}[g]    Go to           {Ansi.reset}",
     ];
     public static string[] markPasteMode = [
         $"{Ansi.mellow}         {Ansi.green}--- Paste ---{Ansi.reset}",
@@ -60,6 +61,13 @@ static class TextStore
         $"{Ansi.mellow}<index>    at index    [a]     Clear all{Ansi.reset}",
         $"{Ansi.mellow}[c]        Clear last  [f]     Clear first{Ansi.reset}",
     ];
+
+    public static string[] markGoToMode = [
+        $"         {Ansi.green}--- Go To ---{Ansi.reset}",
+        $"{Ansi.mellow}<index>    at index    [f]     Go to first{Ansi.reset}",
+        $"{Ansi.mellow}[l]        Go to last  {Ansi.reset}",
+    ];
+
     public static void MarkKeys(string[] markHelp)
     {
         int startX = 50;

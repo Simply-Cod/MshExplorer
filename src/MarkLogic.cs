@@ -4,7 +4,7 @@ namespace MshExplorer;
 class MarkLogic
 {
 
-    public static void MarkMode(MarkWindow markWindow, ExplorerItem current, string currentPath, ref bool dirChange, List<ExplorerItem> allListItems)
+    public static void MarkMode(MarkWindow markWindow, ExplorerItem current, ref string currentPath, ref bool dirChange, List<ExplorerItem> allListItems)
     {
         ConsoleKeyInfo key;
 
@@ -18,10 +18,12 @@ class MarkLogic
                 if (idx >= 0)
                 {
                     markWindow.MarkedList.RemoveAt(idx);
+                    current.Marked = false;
                 }
                 else
                 {
                     markWindow.MarkedList.Add(current);
+                    current.Marked = true;
                 }
                 break;
             case 'p':
@@ -31,6 +33,10 @@ class MarkLogic
             case 'c':
                 if (markWindow.MarkedList.Count > 0)
                     ClearMode(markWindow.MarkedList);
+                break;
+            case 'g':
+                if (markWindow.MarkedList.Count > 0)
+                    GoToMode(ref currentPath,ref dirChange, markWindow.MarkedList);
                 break;
             case 'a': // Add all that are currently not in the marklist
                 if (allListItems.Count > 0)
@@ -45,14 +51,14 @@ class MarkLogic
                     }
 
                 }
-                    break;
+                break;
         }
-        TextStore.ClearMarkKeys(3);
+        TextStore.ClearMarkKeys(4);
     }
 
     public static void PasteMode(List<ExplorerItem> markList, string currentPath, ref bool dirChange)
     {
-        TextStore.ClearMarkKeys(3);
+        TextStore.ClearMarkKeys(4);
         TextStore.MarkKeys(TextStore.markPasteMode);
         string err = string.Empty;
 
@@ -81,24 +87,24 @@ class MarkLogic
             case 'p':
                 if (markList.Count > 0 && markList[markList.Count - 1].Type == ExplorerType.FILE)
                 {
-                    Util.PasteFile(markList[markList.Count - 1],currentPath, ref err);
+                    Util.PasteFile(markList[markList.Count - 1], currentPath, ref err);
                     markList.RemoveAt(markList.Count - 1);
                 }
                 else if (markList.Count > 0 && markList[markList.Count - 1].Type == ExplorerType.DIRECTORY)
                 {
-                    Util.PasteDirectory(markList[markList.Count - 1].Path,currentPath, ref err);
+                    Util.PasteDirectory(markList[markList.Count - 1].Path, currentPath, ref err);
                     markList.RemoveAt(markList.Count - 1);
                 }
                 break;
             case 'f':
                 if (markList.Count > 0 && markList[0].Type == ExplorerType.FILE)
                 {
-                    Util.PasteFile(markList[0],currentPath, ref err);
+                    Util.PasteFile(markList[0], currentPath, ref err);
                     markList.RemoveAt(0);
                 }
                 else if (markList.Count > 0 && markList[0].Type == ExplorerType.DIRECTORY)
                 {
-                    Util.PasteDirectory(markList[0].Path,currentPath, ref err);
+                    Util.PasteDirectory(markList[0].Path, currentPath, ref err);
                     markList.RemoveAt(0);
                 }
                 break;
@@ -137,7 +143,7 @@ class MarkLogic
 
     public static void ClearMode(List<ExplorerItem> markList)
     {
-        TextStore.ClearMarkKeys(3);
+        TextStore.ClearMarkKeys(4);
         TextStore.MarkKeys(TextStore.markClearMode);
 
         ConsoleKeyInfo key;
@@ -165,7 +171,7 @@ class MarkLogic
                 break;
             case 'c':
                 if (markList.Count > 0)
-                    markList.RemoveAt(markList.Count -1);
+                    markList.RemoveAt(markList.Count - 1);
                 break;
             case 'f':
                 if (markList.Count > 0)
@@ -173,5 +179,58 @@ class MarkLogic
                 break;
         }
 
+    }
+    private static void GoToMode(ref string currentPath,ref bool dirChange, List<ExplorerItem> markList)
+    {
+        TextStore.ClearMarkKeys(4);
+        TextStore.MarkKeys(TextStore.markGoToMode);
+
+        ConsoleKeyInfo key;
+        key = Console.ReadKey(true);
+
+        switch (key.KeyChar)
+        {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                int index = key.KeyChar - '0';
+                if (index > markList.Count - 1)
+                    break;
+                if (markList[index].Type == ExplorerType.DIRECTORY)
+                    currentPath = markList[index].Path;
+                else
+                    currentPath = Path.GetDirectoryName(markList[index].Path)!;
+                break;
+            case 'l':
+                if (markList.Count > 0)
+                {
+                    if (markList[markList.Count - 1].Type == ExplorerType.DIRECTORY)
+                        currentPath = markList[markList.Count - 1].Path;
+                    else
+                        currentPath = Path.GetDirectoryName(markList[markList.Count - 1].Path)!;
+
+                }
+                break;
+            case 'f':
+                if (markList.Count > 0)
+                {
+                    if (markList[markList.Count - 1].Type == ExplorerType.DIRECTORY)
+                        currentPath = markList[0].Path;
+                    else
+                        currentPath = Path.GetDirectoryName(markList[0].Path)!;
+                }
+                break;
+
+            default:
+                return;
+        }
+        dirChange = true;
     }
 }

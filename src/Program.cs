@@ -55,6 +55,7 @@ class Program
         // ---------------------------------------------------------------------------
         while (isRunning)
         {
+            listWindow.ReCheckMarks(currentPath, markWindow.MarkedList);
 
             if (Console.WindowHeight != prevHeight || prevWidth != Console.WindowWidth)
             {
@@ -110,7 +111,7 @@ class Program
             {
                 pathBar.UpdateConfigs(userSettings.Configs);
                 listWindow.UpdateConfigs(userSettings.Configs);
-                listWindow.SetItems(directoryItems);
+                listWindow.SetItems(directoryItems, markWindow.MarkedList);
                 floatingWin.UpdateConfigs(userSettings.Configs);
                 statusBar.UpdateConfigs(userSettings.Configs);
                 markWindow.SetStyle(floatingWin.Style);
@@ -136,7 +137,7 @@ class Program
                 directoryItems.Clear();
                 directoryItems = ExplorerItem.GetDirItems(currentPath, ref statusBar.ErrorMessage);
                 pathBar.Draw(currentPath);
-                listWindow.SetItems(directoryItems);
+                listWindow.SetItems(directoryItems, markWindow.MarkedList);
                 listWindow.DrawBorder();
                 listWindow.DrawList();
                 statusBar.SetIndexAndCount(listWindow.SelectedIndex, listWindow.Items.Count);
@@ -290,9 +291,9 @@ class Program
                     break;
                 case ConsoleKey.M:
                     if (listWindow.Items.Count > 0)
-                        MarkLogic.MarkMode(markWindow, listWindow.Items[listWindow.SelectedIndex], currentPath, ref dirChange, listWindow.Items);
+                        MarkLogic.MarkMode(markWindow, listWindow.Items[listWindow.SelectedIndex], ref currentPath, ref dirChange, listWindow.Items);
                     else
-                        MarkLogic.MarkMode(markWindow, new(string.Empty, string.Empty, ExplorerType.NONE), currentPath, ref dirChange, listWindow.Items);
+                        MarkLogic.MarkMode(markWindow, new(string.Empty, string.Empty, ExplorerType.NONE), ref currentPath, ref dirChange, listWindow.Items);
 
                     updateFullWindow = true;
                     break;
@@ -321,7 +322,7 @@ class Program
                                 break;
                             }
                         case 'F':
-                            await FileSearch.PatternMatchAllAsync(currentPath, listWindow, statusBar);
+                            await FileSearch.PatternMatchAllAsync(currentPath, listWindow, statusBar, markWindow.MarkedList);
                             break;
 
                         // Command line input ------------------------------------------------------

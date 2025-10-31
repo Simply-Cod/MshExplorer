@@ -312,7 +312,7 @@ class FloatingWindow
                 Console.SetCursorPosition(textStartX, textStartY + 4);
                 Console.Write($"{Style.InfoHL}Number of Files:{Style.Reset}      {Style.Text}{dir.GetFiles().Length}{Style.Reset}");
                 Console.SetCursorPosition(textStartX, textStartY + 5);
-                Console.Write($"{Style.InfoHL}Path:{Style.Reset}      {Style.Text}{dir.FullName}{Style.Reset}");
+                Console.Write($"{Style.InfoHL}Path:{Style.Reset}      {Style.Text}{Ansi.TruncateString(dir.FullName,Width - 13)}{Style.Reset}");
 
             }
             catch { }
@@ -335,6 +335,9 @@ class FloatingWindow
                 Console.Write($"{Style.InfoHL}Last Write Time:{Style.Reset}     {Style.Text}{fil.LastWriteTime}{Style.Reset}");
                 Console.SetCursorPosition(textStartX, textStartY + 4);
                 Console.Write($"{Style.InfoHL}Extension:{Style.Reset}           {Style.Text}{fil.Extension}{Style.Reset}");
+
+                Console.SetCursorPosition(textStartX, textStartY + 5);
+                Console.Write($"{Style.InfoHL}Path:{Style.Reset}      {Style.Text}{Ansi.TruncateString(fil.FullName, Width - 13)}{Style.Reset}");
 
             }
             catch { }

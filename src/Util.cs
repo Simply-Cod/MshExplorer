@@ -92,17 +92,17 @@ public class Util
             Console.SetCursorPosition(0, 1);
             string format = Ansi.GetFormattedText(item, nerdFont);
             Console.Write($"   Delete {format}?"); Console.SetCursorPosition(0, 2);
-            Console.Write("    (y)Yes (n)No");
-            char key = 'a';
+            Console.Write("    (y/⏎)Yes (n)No");
+            ConsoleKeyInfo key;
 
             while (true)
             {
-                key = Console.ReadKey(true).KeyChar;
-                if (key == 'y') break;
-                else if (key == 'n') break;
+                key = Console.ReadKey(true);
+                if (key.KeyChar == 'y' || key.Key == ConsoleKey.Enter) break;
+                else if (key.KeyChar == 'n') break;
             }
 
-            if (key == 'n')
+            if (key.KeyChar == 'n')
             {
                 Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 1);
                 Console.Write("\x1b[2K");

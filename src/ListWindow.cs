@@ -17,6 +17,8 @@ class ListWindow
     private List<string> styleCacheList;
     public ListStyler Style;
 
+    public string PreviousPath;
+
     public bool NerdFont;
 
 
@@ -31,6 +33,8 @@ class ListWindow
         NerdFont = false;
         Style = new();
         styleCacheList = new();
+
+        PreviousPath = string.Empty;
     }
 
     public void DrawBorder()
@@ -54,12 +58,53 @@ class ListWindow
 
     }
 
-    public void SetItems(List<ExplorerItem> items)
+    public void ReCheckMarks(string currentPath, List<ExplorerItem> markList)
+    {
+        if (currentPath != PreviousPath)
+        {
+            PreviousPath = currentPath;
+            return;
+        }
+        if (Items.Count > 0)
+        {
+            var markedPaths = new HashSet<string>(markList.Select(m => m.Path));
+
+            if (markList.Count == 0)
+            {
+                foreach (var item in Items)
+                {
+                    item.Marked = false;
+                }
+                return;
+            }
+            foreach (var item in Items)
+            {
+                if (markedPaths.Contains(item.Path))
+                    item.Marked = true;
+                else
+                    item.Marked = false;
+            }
+
+        }
+    }
+
+    public void SetItems(List<ExplorerItem> items, List<ExplorerItem> markList)
     {
         Items = new(items);
         SelectedIndex = 0;
         ScrollOffset = 0;
         SetStyleCacheList();
+
+        if (items.Count > 0 && markList.Count > 0)
+        {
+            var markedPaths = new HashSet<string>(markList.Select(m => m.Path));
+
+            foreach (var item in items)
+            {
+                if (markedPaths.Contains(item.Path))
+                    item.Marked = true;
+            }
+        }
 
     }
     // --- Test --- 
@@ -150,10 +195,22 @@ class ListWindow
                         text = $" *{Items[itemIndex].DisplayName}/";
                 }
 
+                if (Items[itemIndex].Marked)
+                {
+                    string mark = NerdFont ? "󱋸" : "m";
+
+                    if (itemIndex == SelectedIndex)
+                        Console.Write($"{mark} {listCursor} {text}");
+                    else
+                        Console.Write($"{mark}   {text}");
+                }
+                else
+                {
                     if (itemIndex == SelectedIndex)
                         Console.Write($"  {listCursor} {text}");
                     else
                         Console.Write($"    {text}");
+                }
 
                 int curX = Console.CursorLeft;
                 int remaining = (StartX + Width) - curX - 1;
