@@ -4,7 +4,7 @@
 Designed to make file and directory navigation in the terminal fast and efficient
 
 It allows users to browse, create, edit (from a list of editors) and delete files and directories.
-![Screenshot](https://github.com/Simply-Cod/MshExplorer/blob/master/media/msh-explorer-default.png)
+![Screenshot](https://github.com/Simply-Cod/MshExplorer/blob/master/media/msh-explorer-r-search.png)
 
 ## Features
 **Navigate**        - Navigate in and out of directories fast.
