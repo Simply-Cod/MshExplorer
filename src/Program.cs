@@ -291,6 +291,11 @@ class Program
                     statusBar.Draw();
                     break;
                 case ConsoleKey.M:
+                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
+                {    
+                    markWindow.DrawMarks();
+                    floatingWin.DrawWindowPanes(TextStore.Windows[3]);
+                }
                     if (listWindow.Items.Count > 0)
                         MarkLogic.MarkMode(markWindow, listWindow.Items[listWindow.SelectedIndex], ref currentPath, ref dirChange, listWindow.Items);
                     else
