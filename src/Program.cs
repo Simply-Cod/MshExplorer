@@ -48,7 +48,9 @@ class Program
         FloatWindowType floatType = FloatWindowType.HELP;
 
         MarkWindow markWindow = new();
-        markWindow.LoadMarks();
+
+        Bookmarks bookmarks = new();
+        bookmarks.Items = BookmarkLogic.LoadBookmarks(bookmarks.Items);
 
 
 
@@ -284,6 +286,15 @@ class Program
                     if (!success)
                         dirChange = true;
                     break;
+
+                case ConsoleKey.B:
+                    string tempPath = currentPath;
+                    BookmarkLogic.BookmarkMode(bookmarks.Items, ref currentPath);
+                    if (tempPath != currentPath)
+                        dirChange = true;
+                    else
+                        updateFullWindow = true;
+                        break;
 
                 case ConsoleKey.Backspace:
                     statusBar.ErrorMessage = string.Empty;

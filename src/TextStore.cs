@@ -9,6 +9,7 @@ static class TextStore
             "Move Between Directories    ←/→ or h/l",
             "Add File/Directory          a",
             "Mark mode                   m",
+            "Bookmarks                   b",
             "Delete File/Directory       D",
             "Open Editor                 e",
             "Explorer CommandLine        :",
@@ -49,7 +50,7 @@ static class TextStore
         $"       {Ansi.green}--- Mark Mode ---{Ansi.reset}",
         $"{Ansi.mellow}[m]    Toggle Mark     [a]     Mark all{Ansi.reset}",
         $"{Ansi.mellow}[c]    Clear           [p]     Paste{Ansi.reset}",
-        $"{Ansi.mellow}[g]    Go to           [w]/[l]     Write/Load marks to/from file{Ansi.reset}",
+        $"{Ansi.mellow}[g]    Go to           {Ansi.reset}",
     ];
     public static string[] markPasteMode = [
         $"{Ansi.mellow}         {Ansi.green}--- Paste ---{Ansi.reset}",
@@ -67,7 +68,17 @@ static class TextStore
         $"{Ansi.mellow}<index>    at index    [f]     Go to first{Ansi.reset}",
         $"{Ansi.mellow}[l]        Go to last  {Ansi.reset}",
     ];
+    public static string[] bookmarkMode = [
+        $"       {Ansi.green}--- Bookmarks ---{Ansi.reset}",
+        $"{Ansi.mellow}[a]    Add Bookmark      [b]     Go to Bookmark{Ansi.reset}",
+        $"{Ansi.mellow}[c]    Clear Bookmark     {Ansi.reset}",
+    ];
 
+    public static string[] bookmarkAdd = [
+        $"       {Ansi.green}--- Listening for hot key ---{Ansi.reset}",
+        $"{Ansi.mellow}Type the hot key you want the bookmark under.{Ansi.reset}",
+        
+    ];
     public static void MarkKeys(string[] markHelp)
     {
         int startX = 50;
@@ -87,7 +98,7 @@ static class TextStore
         for (int i = 0; i < numberOfLines; i++)
         {
             Console.SetCursorPosition(startX, startY + i);
-            Console.Write("\e[0K"); // Delete rest of line
+            Console.Write("\e[2K"); // Delete line
         }
     }
 }

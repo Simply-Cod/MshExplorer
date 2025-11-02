@@ -233,4 +233,6 @@ class MarkLogic
         }
         dirChange = true;
     }
+
+    
 }
