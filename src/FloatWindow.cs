@@ -5,11 +5,10 @@ namespace MshExplorer;
 
 enum FloatWindowType
 {
-    HELP,
     INFO,
-    MARK,
     PREVIEW,
-    CONFIG,
+    MARK,
+    HELP,
 }
 class FloatingWindow
 {
@@ -177,8 +176,10 @@ class FloatingWindow
         ConsoleKeyInfo key;
         bool isConfiging = true;
         string shortAnsi = $"{Ansi.reset}{Ansi.bold}{Ansi.mellow}";
+
         while (isConfiging)
         {
+            string defaultWindow = TextStore.FloatingWindows[(int)configs.DefaultWindow];
             string e = Ansi.GetFormattedEditor(configs.Editor, configs.NerdFont);
             string[] ConfigText = [
     $"Editor                 {Ansi.bold}[{Ansi.yellow}{e}{shortAnsi}]{Ansi.reset}     ",
@@ -186,6 +187,7 @@ class FloatingWindow
     $"List Window Style        {Ansi.bold}[{Ansi.yellow}{configs.ListStyle}{shortAnsi}]{Ansi.reset}  ",
     $"Path Bar Style           {Ansi.bold}[{Ansi.yellow}{configs.PathStyle}{shortAnsi}]{Ansi.reset}  ",
     $"Float Window Style       {Ansi.bold}[{Ansi.yellow}{configs.HelpStyle}{shortAnsi}]{Ansi.reset}  ",
+    $"Default Float Window     {Ansi.bold}[{Ansi.yellow}{defaultWindow}{shortAnsi}]{Ansi.reset}         ",
             ];
 
             DrawWindowText(ConfigText, truncate: false);
@@ -216,7 +218,7 @@ class FloatingWindow
 
                 case ConsoleKey.RightArrow:
                 case ConsoleKey.L:
-                    if (select == 0)
+                    if (select == 0) // Editor select
                     {
                         int editorSelect = Array.IndexOf(Editor.Editors, configs.Editor);
 
@@ -225,6 +227,14 @@ class FloatingWindow
                         else
                             editorSelect++;
                         configs.Editor = Editor.Editors[editorSelect];
+                    }
+                    else if (select == 5) // Floatig window select
+                    {
+                        int windowSelect = (int)configs.DefaultWindow;
+                        if (windowSelect == 3) // Maximum amount of windows pr now
+                            configs.DefaultWindow = 0;
+                        else
+                            configs.DefaultWindow++;
                     }
                     else
                     {
@@ -242,6 +252,14 @@ class FloatingWindow
                         else
                             editorSelect--;
                         configs.Editor = Editor.Editors[editorSelect];
+                    }
+                    else if (select == 5) // Floatig window select
+                    {
+                        int windowSelect = (int)configs.DefaultWindow;
+                        if (windowSelect == 0)
+                            configs.DefaultWindow = (FloatWindowType)3;
+                        else
+                            configs.DefaultWindow--;
                     }
                     else
                     {

@@ -78,8 +78,15 @@ static class TextStore
     public static string[] bookmarkAdd = [
         $"       {Ansi.green}--- Listening for hot key ---{Ansi.reset}",
         $"{Ansi.mellow}Type the hot key you want the bookmark under.{Ansi.reset}",
-        
     ];
+
+    public static Dictionary<int, string> FloatingWindows = new()
+    {
+        [0] = "Info",
+        [1] = "Preview",
+        [2] = "Marks",
+        [3] = "Quick Help",
+    };
     public static void MarkKeys(string[] markHelp)
     {
         int startX = 50;

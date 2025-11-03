@@ -105,6 +105,7 @@ class UserConfigs
     public bool PathStyle {get; set;} = true;
     public bool HelpStyle {get ; set;} = true;
     public string HomePath {get; set;} = string.Empty;
+    public FloatWindowType DefaultWindow {get; set;} = FloatWindowType.HELP; 
 }
 
 

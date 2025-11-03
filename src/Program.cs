@@ -45,7 +45,7 @@ class Program
         ListWindow listWindow = new(width: 40, directoryItems);
         FloatingWindow floatingWin = new();
         StatusBar statusBar = new();
-        FloatWindowType floatType = FloatWindowType.HELP;
+        FloatWindowType floatType = userSettings.Configs.DefaultWindow;
 
         MarkWindow markWindow = new();
 
@@ -436,6 +436,9 @@ class Program
                             floatingWin.Style.Active = userSettings.Configs.HelpStyle;
                             updateFullWindow = true;
                             configChange = true;
+
+                            if (configChange)
+                                    userSettings.Update(listWindow.Style, pathBar.Style, floatingWin.Style);
                             break;
                     }
                     break;
