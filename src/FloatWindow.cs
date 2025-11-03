@@ -9,6 +9,7 @@ enum FloatWindowType
     INFO,
     MARK,
     PREVIEW,
+    CONFIG,
 }
 class FloatingWindow
 {
@@ -152,6 +153,7 @@ class FloatingWindow
         {
             DrawBorder();
             Ansi.Write(StartX + 5, StartY + Height, $"{Style.Text}Press Enter(Confirm) Esc/q(Cancel){Style.Reset}");
+            DrawWindowPanes(TextStore.Windows[4]); 
             TuiConfig(configs);
             ClearWindow();
         }

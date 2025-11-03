@@ -17,9 +17,6 @@ class BookmarkLogic
             case 'a': // Add bookmark
                 AddBookmark(bookmarks, currentPath);
                 break;
-            case 'b': // Go to bookmark
-                GoToBookmark(bookmarks, ref currentPath);
-                break;
             case 'c': // Clear a bookmark
                 ClearBookmark(bookmarks);
                 break;
@@ -44,7 +41,7 @@ class BookmarkLogic
         WriteBookMarks(bookmarks);
     }
 
-    private static void GoToBookmark(Dictionary<char, ExplorerItem> bookmarks, ref string currentPath)
+    public static void GoToBookmark(Dictionary<char, ExplorerItem> bookmarks, ref string currentPath)
     {
         TextStore.ClearMarkKeys(3);
         Bookmarks.DrawBookmarks(bookmarks, true);
@@ -68,7 +65,7 @@ class BookmarkLogic
         WriteBookMarks(bookmarks);
     }
 
-    private static void WriteBookMarks(Dictionary<char, ExplorerItem> bookmarks) 
+    private static void WriteBookMarks(Dictionary<char, ExplorerItem> bookmarks)
     {
         string? exeDir = AppContext.BaseDirectory;
         string filePath = string.Empty;
@@ -78,18 +75,18 @@ class BookmarkLogic
             filePath = Path.Combine(exeDir, "bookmarks.json");
         }
 
-        string json = JsonSerializer.Serialize(bookmarks, new JsonSerializerOptions {WriteIndented = true});
+        string json = JsonSerializer.Serialize(bookmarks, new JsonSerializerOptions { WriteIndented = true });
 
         try
         {
             File.WriteAllText(filePath, json);
         }
-        catch {}
+        catch { }
     }
 
     public static Dictionary<char, ExplorerItem> LoadBookmarks(Dictionary<char, ExplorerItem> bookmarks)
     {
-         string? exeDir = AppContext.BaseDirectory;
+        string? exeDir = AppContext.BaseDirectory;
         string filePath = string.Empty;
 
         if (!string.IsNullOrWhiteSpace(exeDir))
@@ -108,8 +105,8 @@ class BookmarkLogic
 
             bookmarks = JsonSerializer.Deserialize<Dictionary<char, ExplorerItem>>(json)!;
         }
-        catch {}
-        
+        catch { }
+
         return bookmarks;
     }
 
