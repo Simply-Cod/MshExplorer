@@ -176,6 +176,13 @@ class Program
                             }
                             floatingWin.DrawWindowPanes(TextStore.Windows[2]);
                             break;
+                        case FloatWindowType.HELP:
+                            if (dirChange || updateFullWindow)
+                            {
+                                floatingWin.DrawQuickHelp(TextStore.HelpHeader, TextStore.HelpWindowText);
+                                floatingWin.DrawWindowPanes(TextStore.Windows[0]);
+                            }
+                            break;
                     }
                 }
                 dirChange = false;
@@ -208,10 +215,10 @@ class Program
             // --------------------------------------------------------
             key = Console.ReadKey(true);
 
-            while (Console.KeyAvailable) // Empty out input buffer
-            {
-                Console.ReadKey(true);
-            }
+            // while (Console.KeyAvailable) // Empty out input buffer
+            // {
+            //     Console.ReadKey(true);
+            // }
 
             switch (key.Key)
             {
@@ -288,13 +295,20 @@ class Program
                     break;
 
                 case ConsoleKey.B:
-                    string tempPath = currentPath;
-                    BookmarkLogic.BookmarkMode(bookmarks.Items, ref currentPath);
-                    if (tempPath != currentPath)
-                        dirChange = true;
-                    else
+                    if (key.Modifiers == ConsoleModifiers.Alt)
+                    {
+                        BookmarkLogic.BookmarkMode(bookmarks.Items, ref currentPath);
                         updateFullWindow = true;
-                        break;
+                    }
+                    else
+                    {
+                        string tempPath = currentPath;
+                        BookmarkLogic.GoToBookmark(bookmarks.Items, ref currentPath);
+                        TextStore.ClearMarkKeys(4);
+                        if (tempPath != currentPath)
+                            dirChange = true;
+                    }
+                    break;
 
                 case ConsoleKey.Backspace:
                     statusBar.ErrorMessage = string.Empty;
@@ -302,11 +316,11 @@ class Program
                     statusBar.Draw();
                     break;
                 case ConsoleKey.M:
-                if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
-                {    
-                    markWindow.DrawMarks();
-                    floatingWin.DrawWindowPanes(TextStore.Windows[3]);
-                }
+                    if (floatingWin.CheckWindowSize() && !floatingWin.HideWindow)
+                    {
+                        markWindow.DrawMarks();
+                        floatingWin.DrawWindowPanes(TextStore.Windows[3]);
+                    }
                     if (listWindow.Items.Count > 0)
                         MarkLogic.MarkMode(markWindow, listWindow.Items[listWindow.SelectedIndex], ref currentPath, ref dirChange, listWindow.Items);
                     else
@@ -414,6 +428,14 @@ class Program
                                     ExceptionMessage = "You do not have access to files in this directory.";
                                 }
                             }
+                            break;
+                        case '+':
+                            floatingWin.ConfigWindow(userSettings.Configs);
+                            listWindow.Style.Active = userSettings.Configs.ListStyle;
+                            pathBar.Style.Active = userSettings.Configs.PathStyle;
+                            floatingWin.Style.Active = userSettings.Configs.HelpStyle;
+                            updateFullWindow = true;
+                            configChange = true;
                             break;
                     }
                     break;

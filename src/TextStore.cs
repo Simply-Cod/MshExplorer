@@ -9,6 +9,7 @@ static class TextStore
             "Move Between Directories    ←/→ or h/l",
             "Add File/Directory          a",
             "Mark mode                   m",
+            "Add/Remove Bookmarks        Alt-b",
             "Bookmarks                   b",
             "Delete File/Directory       D",
             "Open Editor                 e",
@@ -17,7 +18,7 @@ static class TextStore
             "Search Index                /",
             "Recursive File Search       F",
             "Toggle Info/Quick help      !",
-            "Cycle floating windows      (1-3) or ?",
+            "Cycle floating windows      (1-3), ? or +",
             "Remove Status Message       Backspace",
             "Quit                        q",
         ];
@@ -40,10 +41,11 @@ static class TextStore
     ];
 
     public static string[] Windows = [
-        $"[1] [2] [3] {Ansi.InfoHeader}[?] Quck Help{Ansi.reset}",
-        $"{Ansi.InfoHeader}[1] Info{Ansi.reset}{Ansi.Border} [2] [3] [?]",
-        $"[1] {Ansi.InfoHeader}[2]Preview{Ansi.reset}{Ansi.Border} [3] [?]",
-        $"[1] [2] {Ansi.InfoHeader}[3] Marks{Ansi.reset}{Ansi.Border} [?]"
+        $"[1] [2] [3] {Ansi.InfoHeader}[?] Quck Help{Ansi.reset}{Ansi.Border} [+]",
+        $"{Ansi.InfoHeader}[1] Info{Ansi.reset}{Ansi.Border} [2] [3] [?] [+]",
+        $"[1] {Ansi.InfoHeader}[2]Preview{Ansi.reset}{Ansi.Border} [3] [?] [+]",
+        $"[1] [2] {Ansi.InfoHeader}[3] Marks{Ansi.reset}{Ansi.Border} [?] [+]",
+        $"[1] [2] [3] Marks [?] {Ansi.InfoHeader}[+] Config {Ansi.reset}",
     ];
 
     public static string[] markMode = [
@@ -70,8 +72,7 @@ static class TextStore
     ];
     public static string[] bookmarkMode = [
         $"       {Ansi.green}--- Bookmarks ---{Ansi.reset}",
-        $"{Ansi.mellow}[a]    Add Bookmark      [b]     Go to Bookmark{Ansi.reset}",
-        $"{Ansi.mellow}[c]    Clear Bookmark     {Ansi.reset}",
+        $"{Ansi.mellow}[a]    Add Bookmark      [c]     Clear Bookmark{Ansi.reset}",
     ];
 
     public static string[] bookmarkAdd = [
