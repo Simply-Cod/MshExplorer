@@ -34,7 +34,8 @@ class StatusBar
 
     public void Draw()
     {
-        Console.SetCursorPosition(0, Math.Max(0, Console.WindowHeight - 1));
+       // Console.SetCursorPosition(0, Math.Max(0, Console.WindowHeight - 1));
+        Console.Write($"\x1b[{Console.WindowHeight + 1};{0}H"); // Maybe faster than setcursor
         StatusBarText = $" {SelectedIndex}/{TotalItems} ";
 
         if (!string.IsNullOrEmpty(Editor))

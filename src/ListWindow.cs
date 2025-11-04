@@ -178,7 +178,8 @@ class ListWindow
         for (int i = 0; i < Height - 1; i++)
         {
             int itemIndex = ScrollOffset + i;
-            Console.SetCursorPosition(StartX + indent, StartY + i);
+            //Console.SetCursorPosition(StartX + indent, StartY + i);
+            Console.Write($"\x1b[{StartY + i + 1};{StartX + indent}H"); // Maybe faster than setcursor
 
             if (itemIndex < Items.Count)
             {

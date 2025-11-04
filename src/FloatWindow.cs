@@ -101,7 +101,8 @@ class FloatingWindow
         for (int i = 0; i < text.Length; i++)
         {
             string t = Ansi.ConvertTabsToSpaces(text[i]);
-            Console.SetCursorPosition(x + textOffset, y + i);
+            //Console.SetCursorPosition(x + textOffset, y + i);
+            Console.Write($"\x1b[{y + i + 2};{x + textOffset + 1}H"); // Maybe faster than setcursor
             if (truncate)
                 Console.Write($"{Style.Text}{Ansi.TruncateString(t, Width - 2)}{Style.Reset}"); // Test add truncation
             else
@@ -323,15 +324,20 @@ class FloatingWindow
             try
             {
                 DirectoryInfo dir = new(current.Path);
-                Console.SetCursorPosition(textStartX, textStartY + 1);
+                //Console.SetCursorPosition(textStartX, textStartY + 1);
+                Console.Write($"\x1b[{textStartY + 2};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Creation Time:{Style.Reset}        {Style.Text}{dir.CreationTime}{Style.Reset}");
-                Console.SetCursorPosition(textStartX, textStartY + 2);
+                //Console.SetCursorPosition(textStartX, textStartY + 2);
+                Console.Write($"\x1b[{textStartY + 3};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Last Access Time:{Style.Reset}     {Style.Text}{dir.LastAccessTime}{Style.Reset}");
-                Console.SetCursorPosition(textStartX, textStartY + 3);
+                //Console.SetCursorPosition(textStartX, textStartY + 3);
+                Console.Write($"\x1b[{textStartY + 4};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Sub Directories:{Style.Reset}      {Style.Text}{dir.GetDirectories().Length}{Style.Reset}");
-                Console.SetCursorPosition(textStartX, textStartY + 4);
+                //Console.SetCursorPosition(textStartX, textStartY + 4);
+                Console.Write($"\x1b[{textStartY + 5};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Number of Files:{Style.Reset}      {Style.Text}{dir.GetFiles().Length}{Style.Reset}");
-                Console.SetCursorPosition(textStartX, textStartY + 5);
+                //Console.SetCursorPosition(textStartX, textStartY + 5);
+                Console.Write($"\x1b[{textStartY + 6};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Path:{Style.Reset}      {Style.Text}{Ansi.TruncateString(dir.FullName,Width - 13)}{Style.Reset}");
 
             }
@@ -349,14 +355,18 @@ class FloatingWindow
                 else
                     size = $"{fil.Length} bytes";
                 Console.Write($"{Style.InfoHL}Size:{Style.Reset}                {Style.Text}{size}{Style.Reset}");
-                Console.SetCursorPosition(textStartX, textStartY + 2);
+                //Console.SetCursorPosition(textStartX, textStartY + 2);
+                Console.Write($"\x1b[{textStartY + 3};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Creation Time:{Style.Reset}       {Style.Text}{fil.CreationTime}{Style.Reset}");
-                Console.SetCursorPosition(textStartX, textStartY + 3);
+                //Console.SetCursorPosition(textStartX, textStartY + 3);
+                Console.Write($"\x1b[{textStartY + 4};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Last Write Time:{Style.Reset}     {Style.Text}{fil.LastWriteTime}{Style.Reset}");
-                Console.SetCursorPosition(textStartX, textStartY + 4);
+               // Console.SetCursorPosition(textStartX, textStartY + 4);
+                Console.Write($"\x1b[{textStartY + 5};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Extension:{Style.Reset}           {Style.Text}{fil.Extension}{Style.Reset}");
 
-                Console.SetCursorPosition(textStartX, textStartY + 5);
+                //Console.SetCursorPosition(textStartX, textStartY + 5);
+                Console.Write($"\x1b[{textStartY + 6};{textStartX + 1}H"); // Maybe faster than setcursor
                 Console.Write($"{Style.InfoHL}Path:{Style.Reset}      {Style.Text}{Ansi.TruncateString(fil.FullName, Width - 13)}{Style.Reset}");
 
             }
@@ -382,7 +392,8 @@ class FloatingWindow
 
             if (ExplorerItem.IsBinaryFile(file.Path, 500, ref err))
             {
-                Console.SetCursorPosition(StartX + 5, StartY + 2);
+                //Console.SetCursorPosition(StartX + 5, StartY + 2);
+                Console.Write($"\x1b[{StartY + 3};{StartX + 6}H"); // Maybe faster than setcursor
                 Console.Write("--- Binary file ---");
                 return;
             }
@@ -439,7 +450,8 @@ class FloatingWindow
             List<ExplorerItem> list = ExplorerItem.GetDirItems(dir.Path, ref err);
             if (list.Count == 0)
             {
-                Console.SetCursorPosition(StartX + 5, StartY + 2);
+                //Console.SetCursorPosition(StartX + 5, StartY + 2);
+                Console.Write($"\x1b[{StartY + 3};{StartX + 5}H"); // Maybe faster than setcursor
                 Console.Write(" --- Empty Directory ---");
             }
 
@@ -447,7 +459,8 @@ class FloatingWindow
             {
                 if (i >= Height - 2)
                     break;
-                Console.SetCursorPosition(x, y + i);
+                //Console.SetCursorPosition(x, y + i);
+                Console.Write($"\x1b[{y + i + 1};{x}H"); // Maybe faster than setcursor
                 if (Style.Active)
                     Console.Write(Ansi.GetFormattedText(list[i], NerdFont, Width - 5));
                 else
@@ -459,7 +472,8 @@ class FloatingWindow
 
     public void DrawWindowPanes(string windowPanes)
     {
-        Console.SetCursorPosition(StartX + 5, StartY);
+        //Console.SetCursorPosition(StartX + 5, StartY);
+        Console.Write($"\x1b[{StartY + 1};{StartX + 5}H"); // Maybe faster than setcursor
         Console.Write($"{Style.Border}{windowPanes}{Style.Reset}");
     }
 }
