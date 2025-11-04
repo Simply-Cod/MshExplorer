@@ -8,6 +8,7 @@ static class TextStore
             "Navigate Up/Down            ↑/↓ or k/j",
             "Move Between Directories    ←/→ or h/l",
             "Add File/Directory          a",
+            "Rename File/Directory       r",
             "Mark mode                   m",
             "Add/Remove Bookmarks        Alt-b",
             "Bookmarks                   b",

@@ -13,9 +13,9 @@ public class Util
             _ = e.MoveNext();
             return true;
         }
-        catch (UnauthorizedAccessException ex) {errMessage = $"Error: {ex.Message}"; return false; }
-        catch (DirectoryNotFoundException ex) {errMessage = $"Error: {ex.Message}"; return false; }
-        catch (IOException ex) {errMessage = $"Error: {ex.Message}"; return false; }
+        catch (UnauthorizedAccessException ex) { errMessage = $"Error: {ex.Message}"; return false; }
+        catch (DirectoryNotFoundException ex) { errMessage = $"Error: {ex.Message}"; return false; }
+        catch (IOException ex) { errMessage = $"Error: {ex.Message}"; return false; }
     }
 
     public static void AddItem(string currentPath, string name, ref string errMessage)
@@ -88,26 +88,26 @@ public class Util
 
         // if (dirWithContent)
         // {
-        
-            Console.SetCursorPosition(0, 1);
-            string format = Ansi.GetFormattedText(item, nerdFont);
-            Console.Write($"   Delete {format}?"); Console.SetCursorPosition(0, 2);
-            Console.Write("    (y/⏎)Yes (n)No");
-            ConsoleKeyInfo key;
 
-            while (true)
-            {
-                key = Console.ReadKey(true);
-                if (key.KeyChar == 'y' || key.Key == ConsoleKey.Enter) break;
-                else if (key.KeyChar == 'n') break;
-            }
+        Console.SetCursorPosition(0, 1);
+        string format = Ansi.GetFormattedText(item, nerdFont);
+        Console.Write($"   Delete {format}?"); Console.SetCursorPosition(0, 2);
+        Console.Write("    (y/⏎)Yes (n)No");
+        ConsoleKeyInfo key;
 
-            if (key.KeyChar == 'n')
-            {
-                Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 1);
-                Console.Write("\x1b[2K");
-                return;
-            }
+        while (true)
+        {
+            key = Console.ReadKey(true);
+            if (key.KeyChar == 'y' || key.Key == ConsoleKey.Enter) break;
+            else if (key.KeyChar == 'n') break;
+        }
+
+        if (key.KeyChar == 'n')
+        {
+            Console.Write("\x1b[2K"); Console.SetCursorPosition(0, 1);
+            Console.Write("\x1b[2K");
+            return;
+        }
         // }
 
         try
@@ -163,20 +163,20 @@ public class Util
                 }
             }
         }
-        catch (UnauthorizedAccessException ex) 
-        { 
+        catch (UnauthorizedAccessException ex)
+        {
             errMessage = $"Error: {ex.Message}";
-            return; 
+            return;
         }
-        catch (IOException ex) 
-        { 
+        catch (IOException ex)
+        {
             errMessage = $"Error: {ex.Message}";
-            return; 
+            return;
         }
-        catch (ArgumentException ex) 
-        { 
+        catch (ArgumentException ex)
+        {
             errMessage = $"Error: {ex.Message}";
-            return; 
+            return;
         }
     }
 
@@ -208,7 +208,7 @@ public class Util
             foreach (var f in subFiles)
             {
                 string tempPath = Path.Combine(currentPath, f.Name);
-                f.CopyTo(tempPath, overwrite: true); 
+                f.CopyTo(tempPath, overwrite: true);
             }
 
             foreach (var d in subDirs)
@@ -217,20 +217,20 @@ public class Util
                 PasteDirectory(d.FullName, tempPath, ref errMessage);
             }
         }
-        catch (UnauthorizedAccessException ex) 
-        { 
+        catch (UnauthorizedAccessException ex)
+        {
             errMessage = $"Error: {ex.Message}";
-            return; 
+            return;
         }
-        catch (IOException ex) 
-        { 
+        catch (IOException ex)
+        {
             errMessage = $"Error: {ex.Message}";
-            return; 
+            return;
         }
-        catch (ArgumentException ex) 
-        { 
+        catch (ArgumentException ex)
+        {
             errMessage = $"Error: {ex.Message}";
-            return; 
+            return;
         }
     }
 
@@ -244,8 +244,8 @@ public class Util
             File.AppendAllText(logPath, errMessage);
 
         }
-        catch {}
-        }
+        catch { }
+    }
 
     public static void Clear()
     {
@@ -274,7 +274,7 @@ public class Util
         catch (UnauthorizedAccessException) { return false; }
         catch (Exception) { return false; }
     }
-    
+
     public static bool ProbeFileReadable(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
@@ -287,7 +287,7 @@ public class Util
         {
             using var fs = new FileStream(
                 filePath,
-                FileMode.Open,                 
+                FileMode.Open,
                 FileAccess.Read,
                 FileShare.ReadWrite | FileShare.Delete
             );
@@ -312,6 +312,47 @@ public class Util
         catch (ArgumentException)
         {
             return false;
+        }
+    }
+
+    public static void RenameItem(ExplorerItem item, string currentPath, bool nerdFont)
+    {
+        CommandLine cli = new();
+        cli.Header = "Rename";
+        cli.ToolTip = $"Enter a new name for {Ansi.GetFormattedText(item, nerdFont)}";
+
+        string newName = cli.GetString();
+        if (string.IsNullOrWhiteSpace(newName))
+            return;
+        string fullName = Path.Combine(currentPath, newName);
+
+
+        if (item.Type == ExplorerType.FILE)
+        {
+
+            if (File.Exists(fullName))
+                return;
+
+            try
+            {
+                File.Move(item.Path, fullName);
+            }
+            catch (Exception) {}
+
+
+        }
+        else if (item.Type == ExplorerType.DIRECTORY)
+        {
+
+            if (Directory.Exists(fullName))
+                return;
+
+            try
+            {
+                Directory.Move(item.Path, fullName);
+            }
+            catch (Exception) {}
+
         }
     }
 

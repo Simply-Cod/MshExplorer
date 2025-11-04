@@ -340,6 +340,10 @@ class Program
                     floatType = FloatWindowType.MARK;
                     updateFullWindow = true;
                     break;
+                case ConsoleKey.R:
+                    Util.RenameItem(listWindow.Items[listWindow.SelectedIndex], currentPath, userSettings.Configs.NerdFont);
+                    dirChange = true;
+                    break;
                 default:
 
                     switch (key.KeyChar)
