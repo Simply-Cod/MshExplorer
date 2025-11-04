@@ -192,7 +192,7 @@ class FloatingWindow
             ];
 
             DrawWindowText(ConfigText, truncate: false);
-            Console.SetCursorPosition(configStartX, configStartY + select);
+            Console.SetCursorPosition(configStartX, configStartY + select + 1);
             Console.Write($"{Ansi.bold}{Ansi.orange}>{Ansi.reset}");
             key = Console.ReadKey(true);
 
