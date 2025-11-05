@@ -198,12 +198,12 @@ class ListWindow
 
                 if (Items[itemIndex].Marked)
                 {
-                    string mark = NerdFont ? "󱋸" : "m";
+                    string mark = "\e[2;47m";
 
                     if (itemIndex == SelectedIndex)
-                        Console.Write($"{mark} {listCursor} {text}");
+                        Console.Write($"  {listCursor} {mark}{text}");
                     else
-                        Console.Write($"{mark}   {text}");
+                        Console.Write($"    {mark}{text}");
                 }
                 else
                 {
