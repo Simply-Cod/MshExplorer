@@ -10,6 +10,7 @@ static class TextStore
             "Add File/Directory          a",
             "Rename File/Directory       r",
             "Mark mode                   m",
+            "Toggle marks                Space",
             "Add/Remove Bookmarks        Alt-b",
             "Bookmarks                   b",
             "Delete File/Directory       D",

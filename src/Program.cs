@@ -328,6 +328,24 @@ class Program
 
                     updateFullWindow = true;
                     break;
+                case ConsoleKey.Spacebar:
+                    if (listWindow.Items.Count > 0)
+                    {
+                        ExplorerItem current = listWindow.Items[listWindow.SelectedIndex];
+                        int idx = markWindow.MarkedList.FindIndex(x => x.Path == current.Path);
+                        if (idx >= 0)
+                        {
+                            markWindow.MarkedList.RemoveAt(idx);
+                            current.Marked = false;
+                        }
+                        else
+                        {
+                            markWindow.MarkedList.Add(current);
+                            current.Marked = true;
+                        }
+                        updateFullWindow = true;
+                    }
+                    break;
                 case ConsoleKey.D1:
                     floatType = FloatWindowType.INFO;
                     updateFullWindow = true;
@@ -442,7 +460,7 @@ class Program
                             configChange = true;
 
                             if (configChange)
-                                    userSettings.Update(listWindow.Style, pathBar.Style, floatingWin.Style);
+                                userSettings.Update(listWindow.Style, pathBar.Style, floatingWin.Style);
                             break;
                     }
                     break;

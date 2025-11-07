@@ -198,7 +198,7 @@ class ListWindow
 
                 if (Items[itemIndex].Marked)
                 {
-                    string mark = "\e[2;47m";
+                    string mark = "\e[48;5;240m";
 
                     if (itemIndex == SelectedIndex)
                         Console.Write($"  {listCursor} {mark}{text}");
