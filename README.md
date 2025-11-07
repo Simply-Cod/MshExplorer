@@ -15,9 +15,15 @@ It allows users to browse, create, edit (from a list of editors) and delete file
 
 **Search**          - Search for files and folder in the current directory.
 
+**Recursive Search**  - Search Current directory and sub directories for files.
+
 **Commands**        - In explorer commandline (more features planned).
 
 **Style**           - Style can be turned off if you wish using the 'config' command.
+
+**Bookmarks**       - Add bookmarks to directories and quickly switch to them.
+
+**Preview**         - Preview Files and directories.
 
 **Edit**            - Open editor from within the explorer supported editors are:
 - Vs code
@@ -39,11 +45,9 @@ It allows users to browse, create, edit (from a list of editors) and delete file
 - Run Msh Explorer inside tmux, which handles escape codes more efficiently.
 
 ## Roadmap
-- [ ] File preview panel
-- [ ] Bookmarks - create a list of bookmarks that is stored in a saved file.
 - [ ] Custom themes and colors
 - [ ] File sorting and filtering options
-- [ ] greping feature
+- [ ] grep files
 
 ## Contributing
 Contributions, feedback, and feature suggestions are always welcome!
