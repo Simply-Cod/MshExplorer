@@ -4,6 +4,7 @@
 Designed to make file and directory navigation in the terminal fast and efficient
 
 It allows users to browse, create, edit (from a list of editors) and delete files and directories.
+
 ![Screenshot](https://github.com/Simply-Cod/MshExplorer/blob/master/media/msh-explorer-r-search.png)
 
 ## Features
@@ -54,7 +55,7 @@ Contributions, feedback, and feature suggestions are always welcome!
 If you encounter bugs or have ideas for improvement, feel free to open an issue or submit a pull request.
 
 ## Build and Run
-**Requires:** .net 9.0
+**Requires:** .net 10.0
 ```
 git clone https://github.com/Simply-Cod/MshExplorer
 ```
